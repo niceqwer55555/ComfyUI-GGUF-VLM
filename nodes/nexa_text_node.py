@@ -388,7 +388,7 @@ class NexaTextGeneration:
         
         # 处理模型路径
         if model_source == "Local (GGUF File)":
-            # 本地模型：确保是 .gguf 文件
+            # 本地模型：直接使用 llama-cpp-python（Nexa SDK 不支持本地路径）
             if not model.endswith('.gguf'):
                 model = f"{model}.gguf"
             
@@ -402,8 +402,39 @@ class NexaTextGeneration:
                     print(f"      - {m}")
                 return (error_msg, "", "")
             
-            print(f"📁 Using local model: {model_path}")
-            model_id = model  # 使用文件名，引擎会自动转换为完整路径
+            print(f"📁 Using local GGUF file (llama-cpp-python): {model_path}")
+            
+            # 使用 llama-cpp-python 直接加载
+            from llama_cpp import Llama
+            from ..core.inference_engine import InferenceEngine
+            
+            local_engine = InferenceEngine()
+            
+            # 加载模型
+            if not local_engine.load_model(model_path, n_ctx=8192, n_gpu_layers=-1):
+                return ("Failed to load model", "", "")
+            
+            # 构建提示词
+            prompt_text = f"System: {system_prompt}\n\nUser: {prompt}\n\nAssistant:"
+            
+            # 生成
+            raw_output = local_engine.generate_text(
+                model_path=model_path,
+                prompt=prompt_text,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                top_p=top_p,
+                top_k=top_k,
+                repeat_penalty=repetition_penalty
+            )
+            
+            # 提取思考内容
+            final_output, thinking = self._extract_thinking(raw_output, enable_thinking)
+            final_output = final_output.strip()
+            
+            print(f"   ✅ Generated {len(final_output)} characters")
+            
+            return (final_output, thinking, f"Local GGUF: {model}")
         else:
             # 远程模型：直接使用模型 ID
             model_id = model
