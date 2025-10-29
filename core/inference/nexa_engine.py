@@ -6,8 +6,7 @@ Nexa SDK Inference Engine - 使用 Nexa SDK 服务进行推理
 
 import requests
 import os
-import subprocess
-import sys
+import time
 from typing import Dict, List, Optional, Any
 
 
@@ -90,6 +89,36 @@ class NexaInferenceEngine:
         # 否则拼接到模型目录
         return os.path.join(self.models_dir, os.path.basename(model_name))
     
+    def wait_for_model_ready(self, model_id: str, max_wait: int = 30, check_interval: int = 2) -> bool:
+        """
+        等待模型加载完成
+        
+        Args:
+            model_id: 模型 ID
+            max_wait: 最大等待时间（秒）
+            check_interval: 检查间隔（秒）
+        
+        Returns:
+            模型是否就绪
+        """
+        print(f"⏳ Waiting for model to be ready...")
+        start_time = time.time()
+        
+        while time.time() - start_time < max_wait:
+            # 刷新模型列表
+            models = self.get_available_models(force_refresh=True)
+            
+            if model_id in models:
+                print(f"✅ Model is ready!")
+                return True
+            
+            time.sleep(check_interval)
+            elapsed = int(time.time() - start_time)
+            print(f"   Still waiting... ({elapsed}s)")
+        
+        print(f"⚠️  Timeout waiting for model")
+        return False
+    
     def load_model_via_api(self, model_id: str) -> bool:
         """
         通过 Nexa SDK API 加载模型（服务会自动下载）
@@ -118,19 +147,29 @@ class NexaInferenceEngine:
                 timeout=300  # 5分钟超时，给下载时间
             )
             
-            # 如果返回 200 或 400（模型加载成功但请求格式问题），都算成功
-            if response.status_code in [200, 400]:
+            # 如果返回 200，模型已加载
+            if response.status_code == 200:
                 print(f"✅ Model loaded successfully")
-                # 刷新模型列表
-                self._available_models = None
+                self._available_models = None  # 刷新缓存
                 return True
+            
+            # 如果返回 400，可能是模型正在加载，等待一下
+            elif response.status_code == 400:
+                print(f"⏳ Model is loading, waiting for it to be ready...")
+                # 等待模型加载完成
+                if self.wait_for_model_ready(model_id, max_wait=60):
+                    return True
+                else:
+                    print(f"⚠️  Model loading timeout")
+                    return False
             else:
                 print(f"⚠️  Model load returned status {response.status_code}")
                 return False
                 
         except requests.exceptions.Timeout:
             print(f"⚠️  Model loading timeout (may still be downloading in background)")
-            return False
+            # 即使超时，也尝试等待模型出现在列表中
+            return self.wait_for_model_ready(model_id, max_wait=30)
         except Exception as e:
             print(f"❌ Failed to load model: {e}")
             return False
@@ -160,7 +199,7 @@ class NexaInferenceEngine:
             return False
         
         # 检查远程服务中是否有该模型
-        available_models = self.get_available_models()
+        available_models = self.get_available_models(force_refresh=True)
         if model_id in available_models:
             print(f"✅ Model available in Nexa service: {model_id}")
             return True
@@ -190,10 +229,12 @@ class NexaInferenceEngine:
                 
                 # 提取模型 ID
                 self._available_models = [model['id'] for model in data.get('data', [])]
-                print(f"✅ Found {len(self._available_models)} models in Nexa SDK service")
+                if not force_refresh:  # 只在非强制刷新时打印
+                    print(f"✅ Found {len(self._available_models)} models in Nexa SDK service")
                 
             except Exception as e:
-                print(f"❌ Failed to fetch models from Nexa SDK: {e}")
+                if not force_refresh:
+                    print(f"❌ Failed to fetch models from Nexa SDK: {e}")
                 self._available_models = []
         
         return self._available_models
@@ -250,7 +291,8 @@ class NexaInferenceEngine:
         else:
             # 确保模型可用（如果需要则加载）
             if auto_download:
-                self.ensure_model_available(model, auto_download=True)
+                if not self.ensure_model_available(model, auto_download=True):
+                    raise RuntimeError(f"Failed to load model: {model}")
         
         payload = {
             "model": model,
@@ -275,20 +317,14 @@ class NexaInferenceEngine:
                 self.chat_endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=300  # 5分钟超时，给模型加载时间
+                timeout=120  # 2分钟超时
             )
             response.raise_for_status()
             return response.json()
         
         except requests.exceptions.Timeout:
-            raise RuntimeError("Request timeout. The model might be downloading or the service is overloaded.")
+            raise RuntimeError("Request timeout. The model might be too slow or the service is overloaded.")
         except requests.exceptions.RequestException as e:
-            # 如果是 400 错误，可能是模型正在加载，给出友好提示
-            if hasattr(e, 'response') and e.response is not None:
-                if e.response.status_code == 400:
-                    error_detail = e.response.text
-                    if 'model' in error_detail.lower():
-                        raise RuntimeError(f"Model not loaded. Please wait a moment and try again, or check if the model ID is correct: {model}")
             raise RuntimeError(f"API request failed: {e}")
     
     def text_completion(
@@ -328,7 +364,8 @@ class NexaInferenceEngine:
         else:
             # 确保模型可用（如果需要则加载）
             if auto_download:
-                self.ensure_model_available(model, auto_download=True)
+                if not self.ensure_model_available(model, auto_download=True):
+                    raise RuntimeError(f"Failed to load model: {model}")
         
         payload = {
             "model": model,
@@ -352,13 +389,13 @@ class NexaInferenceEngine:
                 self.completions_endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=300
+                timeout=120
             )
             response.raise_for_status()
             return response.json()
         
         except requests.exceptions.Timeout:
-            raise RuntimeError("Request timeout. The model might be downloading or the service is overloaded.")
+            raise RuntimeError("Request timeout. The model might be too slow or the service is overloaded.")
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"API request failed: {e}")
     
