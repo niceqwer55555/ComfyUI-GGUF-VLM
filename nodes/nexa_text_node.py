@@ -19,17 +19,24 @@ from ..core.inference.nexa_engine import get_nexa_engine
 
 
 # 预设模型列表
-PRESET_MODELS = [
-    "Custom (输入自定义模型)",
+# 本地 GGUF 文件（用于 Local 模式）
+LOCAL_GGUF_MODELS = [
     "Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf",
     "mlabonne_Qwen3-8B-abliterated-Q8_0.gguf",
-    "mradermacher/Huihui-Qwen3-4B-Thinking-2507-abliterated-GGUF:Q8_0",
+    "Qwen2.5-VL-7B-Abliterated-Caption-it.Q8_0.gguf",
+]
+
+# Nexa SDK 远程模型（用于 Remote 模式）
+REMOTE_NEXA_MODELS = [
     "DavidAU/Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max-GGUF:Q6_K",
+    "mradermacher/Huihui-Qwen3-4B-Thinking-2507-abliterated-GGUF:Q8_0",
     "prithivMLmods/Qwen3-4B-2507-abliterated-GGUF:Q8_0",
     "mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0",
     "mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF:Q8_0",
-    "Triangle104/Josiefied-Qwen3-4B-abliterated-v2-Q8_0-GGUF",
 ]
+
+# 统一的预设列表（向后兼容）
+PRESET_MODELS = ["Custom (输入自定义模型)"] + LOCAL_GGUF_MODELS + REMOTE_NEXA_MODELS
 
 # HuggingFace URL 到模型 ID 的映射
 HUGGINGFACE_URL_MAPPING = {
