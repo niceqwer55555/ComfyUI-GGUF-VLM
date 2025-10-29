@@ -249,11 +249,6 @@ class NexaTextGeneration:
                     "default": True,
                     "tooltip": "自动下载模型（使用 nexa pull）"
                 }),
-                "prompt": ("STRING", {
-                    "default": "Hello, how are you?",
-                    "multiline": True,
-                    "tooltip": "输入提示词"
-                }),
                 "max_tokens": ("INT", {
                     "default": 512,
                     "min": 1,
@@ -292,6 +287,11 @@ class NexaTextGeneration:
                 "enable_thinking": ("BOOLEAN", {
                     "default": False,
                     "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
+                }),
+                "prompt": ("STRING", {
+                    "default": "Hello, how are you?",
+                    "multiline": True,
+                    "tooltip": "输入提示词"
                 }),
             }
         }

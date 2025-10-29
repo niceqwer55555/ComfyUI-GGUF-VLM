@@ -215,11 +215,6 @@ class TextGenerationNode:
                 "model": ("TEXT_MODEL", {
                     "tooltip": "文本模型配置"
                 }),
-                "prompt": ("STRING", {
-                    "default": "Hello, how are you?",
-                    "multiline": True,
-                    "tooltip": "输入提示词"
-                }),
                 "max_tokens": ("INT", {
                     "default": 512,
                     "min": 1,
@@ -258,6 +253,11 @@ class TextGenerationNode:
                 "enable_thinking": ("BOOLEAN", {
                     "default": False,
                     "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
+                }),
+                "prompt": ("STRING", {
+                    "default": "Hello, how are you?",
+                    "multiline": True,
+                    "tooltip": "输入提示词"
                 }),
             },
         }
