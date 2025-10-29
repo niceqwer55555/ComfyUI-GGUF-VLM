@@ -1,11 +1,13 @@
 """
 Nexa SDK Inference Engine - 使用 Nexa SDK 服务进行推理
 通过 HTTP API 调用本地 Nexa SDK 服务
-支持本地模型路径管理，与 ComfyUI 的 /models/LLM 目录集成
+支持本地模型路径管理、自动下载和与 ComfyUI 的 /models/LLM 目录集成
 """
 
 import requests
 import os
+import subprocess
+import sys
 from typing import Dict, List, Optional, Any
 
 
@@ -88,6 +90,120 @@ class NexaInferenceEngine:
         # 否则拼接到模型目录
         return os.path.join(self.models_dir, os.path.basename(model_name))
     
+    def download_model(self, model_id: str, auto_download: bool = True) -> Optional[str]:
+        """
+        下载 HuggingFace 模型到本地
+        
+        Args:
+            model_id: 模型 ID，格式如 "user/repo:quantization"
+            auto_download: 是否自动下载
+        
+        Returns:
+            下载后的模型路径，如果失败返回 None
+        """
+        if not auto_download:
+            return None
+        
+        if not self.models_dir:
+            print("❌ Models directory not set")
+            return None
+        
+        try:
+            print(f"📥 Downloading model: {model_id}")
+            print(f"   Target directory: {self.models_dir}")
+            
+            # 使用 nexa pull 命令下载模型
+            # 格式: nexa pull user/repo:quantization
+            cmd = ["nexa", "pull", model_id]
+            
+            # 设置环境变量，指定下载目录
+            env = os.environ.copy()
+            env["NEXA_MODELS_DIR"] = self.models_dir
+            
+            print(f"   Running: {' '.join(cmd)}")
+            
+            # 执行下载命令
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                env=env,
+                text=True,
+                bufsize=1
+            )
+            
+            # 实时输出下载进度
+            for line in process.stdout:
+                line = line.strip()
+                if line:
+                    print(f"   {line}")
+            
+            process.wait()
+            
+            if process.returncode == 0:
+                print(f"✅ Model downloaded successfully")
+                
+                # 查找下载的文件
+                local_models = self.get_local_models()
+                if local_models:
+                    # 返回最新下载的模型
+                    return self.get_model_path(local_models[-1])
+                
+                return None
+            else:
+                print(f"❌ Download failed with code {process.returncode}")
+                return None
+        
+        except FileNotFoundError:
+            print("❌ 'nexa' command not found. Please install nexa-sdk:")
+            print("   pip install nexaai")
+            return None
+        except Exception as e:
+            print(f"❌ Download failed: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+    
+    def ensure_model_available(self, model_id: str, auto_download: bool = True) -> bool:
+        """
+        确保模型可用（如果不存在则下载）
+        
+        Args:
+            model_id: 模型 ID
+            auto_download: 是否自动下载
+        
+        Returns:
+            模型是否可用
+        """
+        # 检查是否是本地文件
+        if model_id.endswith('.gguf'):
+            model_path = self.get_model_path(model_id)
+            if os.path.exists(model_path):
+                print(f"✅ Local model found: {model_path}")
+                return True
+            
+            if auto_download:
+                print(f"⚠️  Local model not found, will try to use remote")
+                return False
+            
+            return False
+        
+        # 检查远程服务中是否有该模型
+        available_models = self.get_available_models()
+        if model_id in available_models:
+            print(f"✅ Model available in Nexa service: {model_id}")
+            return True
+        
+        # 如果不在服务中，尝试下载
+        if auto_download:
+            print(f"📥 Model not in service, attempting to download...")
+            downloaded_path = self.download_model(model_id, auto_download=True)
+            if downloaded_path:
+                print(f"✅ Model downloaded and ready: {downloaded_path}")
+                return True
+        
+        return False
+    
     def get_available_models(self, force_refresh: bool = False) -> List[str]:
         """
         获取 Nexa SDK 服务中可用的模型列表
@@ -137,6 +253,7 @@ class NexaInferenceEngine:
         top_k: Optional[int] = None,
         repetition_penalty: Optional[float] = None,
         stream: bool = False,
+        auto_download: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -151,6 +268,7 @@ class NexaInferenceEngine:
             top_k: Top-k 采样
             repetition_penalty: 重复惩罚
             stream: 是否流式输出
+            auto_download: 是否自动下载模型
             **kwargs: 其他参数
         
         Returns:
@@ -161,6 +279,10 @@ class NexaInferenceEngine:
             if self.models_dir:
                 model = self.get_model_path(model)
                 print(f"📁 Using local model: {model}")
+        else:
+            # 确保模型可用（如果需要则下载）
+            if auto_download:
+                self.ensure_model_available(model, auto_download=True)
         
         payload = {
             "model": model,
@@ -204,6 +326,7 @@ class NexaInferenceEngine:
         top_p: float = 0.9,
         top_k: Optional[int] = None,
         repetition_penalty: Optional[float] = None,
+        auto_download: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -217,6 +340,7 @@ class NexaInferenceEngine:
             top_p: Top-p 采样
             top_k: Top-k 采样
             repetition_penalty: 重复惩罚
+            auto_download: 是否自动下载模型
             **kwargs: 其他参数
         
         Returns:
@@ -227,6 +351,10 @@ class NexaInferenceEngine:
             if self.models_dir:
                 model = self.get_model_path(model)
                 print(f"📁 Using local model: {model}")
+        else:
+            # 确保模型可用（如果需要则下载）
+            if auto_download:
+                self.ensure_model_available(model, auto_download=True)
         
         payload = {
             "model": model,
@@ -270,6 +398,7 @@ class NexaInferenceEngine:
         top_p: float = 0.9,
         top_k: Optional[int] = None,
         repetition_penalty: Optional[float] = None,
+        auto_download: bool = True,
         **kwargs
     ) -> str:
         """
@@ -284,6 +413,7 @@ class NexaInferenceEngine:
             top_p: Top-p 采样
             top_k: Top-k 采样
             repetition_penalty: 重复惩罚
+            auto_download: 是否自动下载模型
             **kwargs: 其他参数
         
         Returns:
@@ -306,6 +436,7 @@ class NexaInferenceEngine:
             top_p=top_p,
             top_k=top_k,
             repetition_penalty=repetition_penalty,
+            auto_download=auto_download,
             **kwargs
         )
         

@@ -1,6 +1,6 @@
 """
 Nexa SDK Text Node - 使用 Nexa SDK 服务的文本生成节点
-支持本地模型路径管理，与 ComfyUI 的 /models/LLM 目录集成
+支持本地模型路径管理、自动下载和与 ComfyUI 的 /models/LLM 目录集成
 """
 
 import re
@@ -16,6 +16,73 @@ except:
     print("⚠️  PathConfig not available, using default paths")
 
 from ..core.inference.nexa_engine import get_nexa_engine
+
+
+# 预设模型列表
+PRESET_MODELS = [
+    "Custom (输入自定义模型)",
+    "DavidAU/Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max-GGUF:Q6_K",
+    "prithivMLmods/Qwen3-4B-2507-abliterated-GGUF:Q8_0",
+    "mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0",
+    "mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF:Q8_0",
+    "Triangle104/Josiefied-Qwen3-4B-abliterated-v2-Q8_0-GGUF",
+]
+
+# HuggingFace URL 到模型 ID 的映射
+HUGGINGFACE_URL_MAPPING = {
+    "https://huggingface.co/prithivMLmods/Qwen3-4B-2507-abliterated-GGUF/blob/main/Qwen3-4B-Instruct-2507-abliterated-GGUF/Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf": 
+        "prithivMLmods/Qwen3-4B-2507-abliterated-GGUF:Q8_0",
+    
+    "https://huggingface.co/mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF/resolve/main/Qwen3-4B-Thinking-2507-Uncensored-Fixed.Q8_0.gguf":
+        "mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0",
+    
+    "https://huggingface.co/mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF/blob/main/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B.Q8_0.gguf":
+        "mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF:Q8_0",
+    
+    "https://huggingface.co/Triangle104/Josiefied-Qwen3-4B-abliterated-v2-Q8_0-GGUF/blob/main/josiefied-qwen3-4b-abliterated-v2-q8_0.gguf":
+        "Triangle104/Josiefied-Qwen3-4B-abliterated-v2-Q8_0-GGUF",
+}
+
+
+def parse_model_input(model_input: str) -> str:
+    """
+    解析模型输入，支持多种格式：
+    1. 模型 ID: "user/repo:quantization"
+    2. HuggingFace URL
+    3. 本地文件名: "model.gguf"
+    
+    Returns:
+        标准化的模型标识符
+    """
+    model_input = model_input.strip()
+    
+    # 如果是 HuggingFace URL，转换为模型 ID
+    if model_input.startswith("https://huggingface.co/"):
+        if model_input in HUGGINGFACE_URL_MAPPING:
+            return HUGGINGFACE_URL_MAPPING[model_input]
+        
+        # 尝试从 URL 中提取模型信息
+        # 格式: https://huggingface.co/user/repo/blob/main/file.gguf
+        # 或: https://huggingface.co/user/repo/resolve/main/file.gguf
+        parts = model_input.replace("https://huggingface.co/", "").split("/")
+        if len(parts) >= 2:
+            user = parts[0]
+            repo = parts[1]
+            
+            # 提取量化类型（如果有）
+            if len(parts) >= 4:
+                filename = parts[-1]
+                # 从文件名提取量化类型，如 Q8_0, Q6_K 等
+                import re
+                quant_match = re.search(r'\.(Q\d+_[0K]|Q\d+)', filename, re.IGNORECASE)
+                if quant_match:
+                    quant = quant_match.group(1).upper()
+                    return f"{user}/{repo}:{quant}"
+            
+            return f"{user}/{repo}"
+    
+    # 直接返回（模型 ID 或本地文件名）
+    return model_input
 
 
 class NexaModelSelector:
@@ -147,9 +214,18 @@ class NexaTextGeneration:
                 "model_config": ("NEXA_MODEL", {
                     "tooltip": "Nexa 模型配置（来自 Model Selector）"
                 }),
-                "model": ("STRING", {
+                "preset_model": (PRESET_MODELS, {
+                    "default": PRESET_MODELS[0],
+                    "tooltip": "预设模型列表（选择或使用自定义）"
+                }),
+                "custom_model": ("STRING", {
                     "default": "",
-                    "tooltip": "模型名称（远程模型 ID 或本地 .gguf 文件名）"
+                    "multiline": False,
+                    "tooltip": "自定义模型（模型 ID、HuggingFace URL 或本地文件名）"
+                }),
+                "auto_download": ("BOOLEAN", {
+                    "default": True,
+                    "tooltip": "自动下载模型（如果模型不存在）"
                 }),
                 "prompt": ("STRING", {
                     "default": "Hello, how are you?",
@@ -258,7 +334,9 @@ class NexaTextGeneration:
     def generate(
         self,
         model_config,
-        model: str,
+        preset_model: str,
+        custom_model: str,
+        auto_download: bool,
         prompt: str,
         max_tokens: int = 512,
         temperature: float = 0.7,
@@ -286,11 +364,22 @@ class NexaTextGeneration:
             print("   Please make sure the service is running.")
             return (error_msg, "", "")
         
-        # 验证模型名称
-        if not model:
-            error_msg = "❌ Please specify a model name"
-            print(error_msg)
-            return (error_msg, "", "")
+        # 确定使用哪个模型
+        if preset_model == "Custom (输入自定义模型)":
+            if not custom_model:
+                error_msg = "❌ Please specify a custom model"
+                print(error_msg)
+                return (error_msg, "", "")
+            model = parse_model_input(custom_model)
+            print(f"📝 Using custom model: {model}")
+        else:
+            model = preset_model
+            print(f"📋 Using preset model: {model}")
+        
+        # 如果启用自动下载，确保模型可用
+        if auto_download and model_source == "Remote (Nexa Service)":
+            print(f"🔍 Checking model availability...")
+            engine.ensure_model_available(model, auto_download=True)
         
         # 处理模型路径
         if model_source == "Local (GGUF File)":
@@ -347,6 +436,7 @@ class NexaTextGeneration:
         print(f"🤖 Generating text with Nexa SDK...")
         print(f"   Model: {model_id}")
         print(f"   Source: {model_source}")
+        print(f"   Auto-download: {'✅ Enabled' if auto_download else '❌ Disabled'}")
         print(f"   Messages: {len(messages)} messages")
         if not enable_thinking:
             print(f"   🚫 Thinking disabled")
@@ -357,6 +447,7 @@ class NexaTextGeneration:
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "top_p": top_p,
+                "auto_download": auto_download,
             }
             
             # 只在非零时添加 top_k 和 repetition_penalty
