@@ -213,14 +213,32 @@ class NexaTextGeneration:
     
     @classmethod
     def INPUT_TYPES(cls):
+        # 动态获取可用模型列表
+        from ..core.inference.nexa_engine import get_nexa_engine
+        engine = get_nexa_engine()
+        
+        # 从 Nexa SDK API 获取模型
+        available_models = engine.get_available_models()
+        
+        # 合并预设和 API 模型
+        all_models = ["Custom (输入自定义模型 ID)"]
+        
+        # 添加 API 中的模型（已下载的）
+        if available_models:
+            all_models.extend(available_models)
+        
+        # 添加预设模型（作为参考）
+        all_models.append("--- Preset Models (需要 nexa pull) ---")
+        all_models.extend(PRESET_MODELS[1:])  # 跳过第一个 "Custom"
+        
         return {
             "required": {
                 "model_config": ("NEXA_MODEL", {
                     "tooltip": "Nexa 模型配置（来自 Model Selector）"
                 }),
-                "preset_model": (PRESET_MODELS, {
-                    "default": PRESET_MODELS[0],
-                    "tooltip": "预设模型列表（选择或使用自定义）"
+                "preset_model": (all_models, {
+                    "default": all_models[0],
+                    "tooltip": "可用模型列表（顶部为已下载模型）"
                 }),
                 "custom_model": ("STRING", {
                     "default": "",
