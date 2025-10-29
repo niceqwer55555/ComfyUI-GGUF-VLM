@@ -112,8 +112,8 @@ class NexaModelSelector:
             }
         }
     
-    RETURN_TYPES = ("NEXA_MODEL", "STRING")
-    RETURN_NAMES = ("model_config", "available_models")
+    RETURN_TYPES = ("NEXA_MODEL",)
+    RETURN_NAMES = ("model_config",)
     FUNCTION = "select_model"
     CATEGORY = "GGUF-VisionLM/Nexa"
     OUTPUT_NODE = True
@@ -143,7 +143,7 @@ class NexaModelSelector:
                 "engine_type": "nexa",
                 "service_available": False
             }
-            return (config, error_msg)
+            return (config,)
         
         # 从 Nexa SDK 服务获取可用模型
         available_models = engine.get_available_models(force_refresh=refresh_models)
@@ -170,7 +170,7 @@ class NexaModelSelector:
         print(f"   Service URL: {base_url}")
         print(f"   Available models: {len(available_models)}")
         
-        return (config, models_text)
+        return (config,)
 
 
 class NexaTextGeneration:
@@ -261,8 +261,8 @@ class NexaTextGeneration:
             }
         }
     
-    RETURN_TYPES = ("STRING", "STRING", "STRING")
-    RETURN_NAMES = ("context", "thinking", "raw_response")
+    RETURN_TYPES = ("STRING", "STRING")
+    RETURN_NAMES = ("context", "thinking")
     FUNCTION = "generate"
     CATEGORY = "GGUF-VisionLM/Nexa"
     OUTPUT_NODE = True
@@ -339,14 +339,14 @@ class NexaTextGeneration:
             error_msg = f"❌ Nexa SDK service is not available at {base_url}"
             print(error_msg)
             print("   Please make sure the service is running.")
-            return (error_msg, "", "")
+            return (error_msg, "")
         
         # 确定使用哪个模型
         if preset_model == "Custom (输入自定义模型)":
             if not custom_model:
                 error_msg = "❌ Please specify a custom model"
                 print(error_msg)
-                return (error_msg, "", "")
+                return (error_msg, "")
             model = parse_model_input(custom_model)
             print(f"📝 Using custom model: {model}")
         else:
@@ -429,18 +429,14 @@ class NexaTextGeneration:
             
             print(f"   ✅ Generated {len(final_output)} characters")
             
-            # 格式化原始响应
-            import json
-            raw_response = json.dumps(response, indent=2, ensure_ascii=False)
-            
-            return (final_output, thinking, raw_response)
+            return (final_output, thinking)
         
         except Exception as e:
             error_msg = f"❌ Generation failed: {str(e)}"
             print(error_msg)
             import traceback
             traceback.print_exc()
-            return (error_msg, "", str(e))
+            return (error_msg, "")
 
 
 class NexaServiceStatus:
