@@ -416,8 +416,10 @@ class TextGenerationNode:
         # 生成文本
         try:
             # 设置 stop 序列防止模型过度生成
-            stop_sequences = ["User:", "System:", "\n\n\n"]
+            # 注意：模型很少输出 User:/System:，所以主要依靠段落检测
+            stop_sequences = ["User:", "System:", "\n\n\n", "\n\n##", "\n\nNote:", "\n\nThis "]
             print(f"  - Stop 序列: {stop_sequences}")
+            print(f"  - 建议: 如果输出过长，请降低 max_tokens 到 256-300")
             
             raw_output = engine.generate_text(
                 model_path=model_path,
