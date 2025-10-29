@@ -90,7 +90,7 @@ class UnifiedTextModelSelector:
     RETURN_TYPES = ("TEXT_MODEL",)
     RETURN_NAMES = ("model_config",)
     FUNCTION = "select_model"
-    CATEGORY = "GGUF-FX/Text"
+    CATEGORY = "GGUF-VisionLM/Text"
     OUTPUT_NODE = True
     
     def select_model(
@@ -278,7 +278,7 @@ class UnifiedTextGeneration:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("context", "thinking")
     FUNCTION = "generate"
-    CATEGORY = "GGUF-FX/Text"
+    CATEGORY = "GGUF-VisionLM/Text"
     OUTPUT_NODE = True
     
     @staticmethod
