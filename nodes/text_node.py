@@ -93,25 +93,25 @@ class TextModelLoader:
             "required": {
                 "model": (all_models, {
                     "default": all_models[0] if all_models else "No models found",
-                    "tooltip": "🤖 选择文本生成模型"
+                    "tooltip": "选择文本生成模型"
                 }),
                 "n_ctx": ("INT", {
                     "default": 8192,
                     "min": 512,
                     "max": 128000,
                     "step": 512,
-                    "tooltip": "🤖 上下文窗口大小"
+                    "tooltip": "上下文窗口大小"
                 }),
                 "device": (["Auto", "GPU", "CPU"], {
-                    "default": "🤖 Auto",
-                    "tooltip": "🤖 运行设备 (Auto=自动检测, GPU=全部GPU, CPU=仅CPU)"
+                    "default": "Auto",
+                    "tooltip": "运行设备 (Auto=自动检测, GPU=全部GPU, CPU=仅CPU)"
                 }),
             },
             "optional": {
                 "system_prompt": ("STRING", {
                     "default": "",
                     "multiline": True,
-                    "tooltip": "🤖 系统提示词（可选）"
+                    "tooltip": "系统提示词（可选）"
                 }),
             }
         }
@@ -213,51 +213,51 @@ class TextGenerationNode:
         return {
             "required": {
                 "model": ("TEXT_MODEL", {
-                    "tooltip": "🤖 文本模型配置"
+                    "tooltip": "文本模型配置"
                 }),
                 "max_tokens": ("INT", {
                     "default": 512,
                     "min": 1,
                     "max": 8192,
                     "step": 1,
-                    "tooltip": "🤖 最大生成 token 数"
+                    "tooltip": "最大生成 token 数"
                 }),
                 "temperature": ("FLOAT", {
                     "default": 0.7,
                     "min": 0.0,
                     "max": 2.0,
                     "step": 0.1,
-                    "tooltip": "🤖 温度参数（越高越随机）"
+                    "tooltip": "温度参数（越高越随机）"
                 }),
                 "top_p": ("FLOAT", {
                     "default": 0.9,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.05,
-                    "tooltip": "🤖 Top-p 采样"
+                    "tooltip": "Top-p 采样"
                 }),
                 "top_k": ("INT", {
                     "default": 40,
                     "min": 0,
                     "max": 100,
                     "step": 1,
-                    "tooltip": "🤖 Top-k 采样"
+                    "tooltip": "Top-k 采样"
                 }),
                 "repetition_penalty": ("FLOAT", {
                     "default": 1.1,
                     "min": 1.0,
                     "max": 2.0,
                     "step": 0.1,
-                    "tooltip": "🤖 重复惩罚"
+                    "tooltip": "重复惩罚"
                 }),
                 "enable_thinking": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "🤖 启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
+                    "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
                 }),
                 "prompt": ("STRING", {
-                    "default": "🤖 Hello, how are you?",
+                    "default": "Hello, how are you?",
                     "multiline": True,
-                    "tooltip": "🤖 输入提示词"
+                    "tooltip": "输入提示词"
                 }),
             },
         }

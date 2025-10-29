@@ -88,8 +88,8 @@ class VisionModelLoaderTransformers:
                             "Qwen3-VL-8B-Thinking"
                         ],
                         {
-                            "default": "🤖 Huihui-Qwen3-VL-4B-Instruct-abliterated",
-                            "tooltip": "🤖 选择 Qwen3-VL 模型"
+                            "default": "Huihui-Qwen3-VL-4B-Instruct-abliterated",
+                            "tooltip": "选择 Qwen3-VL 模型"
                         }
                     ),
                 },
@@ -168,7 +168,7 @@ class VisionLanguageNodeTransformers:
                             "min": 128,
                             "max": 256000,
                             "step": 1,
-                            "tooltip": "🤖 最大生成 token 数（Qwen3-VL 推荐: 16384）"
+                            "tooltip": "最大生成 token 数（Qwen3-VL 推荐: 16384）"
                         }
                     ),
                 },

@@ -60,7 +60,7 @@ class MultiImageAnalysis:
                             "min": 128,
                             "max": 256000,
                             "step": 1,
-                            "tooltip": "🤖 最大生成 token 数"
+                            "tooltip": "最大生成 token 数"
                         }
                     ),
                 },
@@ -78,7 +78,7 @@ class MultiImageAnalysis:
                     {
                         "default": "",
                         "multiline": True,
-                        "tooltip": "🤖 系统提示词（可选）"
+                        "tooltip": "系统提示词（可选）"
                     }
                 ),
             }
@@ -230,8 +230,8 @@ class MultiImageComparison:
                         "custom - 自定义",
                     ],
                     {
-                        "default": "🤖 similarities - 找出相似之处",
-                        "tooltip": "🤖 对比类型"
+                        "default": "similarities - 找出相似之处",
+                        "tooltip": "对比类型"
                     }
                 ),
                 "custom_prompt": (
@@ -239,7 +239,7 @@ class MultiImageComparison:
                     {
                         "default": "",
                         "multiline": True,
-                        "tooltip": "🤖 自定义提示词（当选择 custom 时使用）"
+                        "tooltip": "自定义提示词（当选择 custom 时使用）"
                     }
                 ),
                 **TEMPERATURE_INPUT,
@@ -251,7 +251,7 @@ class MultiImageComparison:
                             "min": 128,
                             "max": 256000,
                             "step": 1,
-                            "tooltip": "🤖 最大生成 token 数"
+                            "tooltip": "最大生成 token 数"
                         }
                     ),
                 },

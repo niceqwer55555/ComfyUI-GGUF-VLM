@@ -91,19 +91,19 @@ class NexaModelSelector:
         return {
             "required": {
                 "base_url": ("STRING", {
-                    "default": "🤖 http://127.0.0.1:11434",
-                    "tooltip": "🤖 Nexa SDK 服务地址"
+                    "default": "http://127.0.0.1:11434",
+                    "tooltip": "Nexa SDK 服务地址"
                 }),
                 "refresh_models": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "🤖 刷新模型列表"
+                    "tooltip": "刷新模型列表"
                 }),
             },
             "optional": {
                 "system_prompt": ("STRING", {
                     "default": "",
                     "multiline": True,
-                    "tooltip": "🤖 系统提示词（可选）"
+                    "tooltip": "系统提示词（可选）"
                 }),
             }
         }
@@ -195,64 +195,64 @@ class NexaTextGeneration:
         return {
             "required": {
                 "model_config": ("NEXA_MODEL", {
-                    "tooltip": "🤖 Nexa 模型配置（来自 Model Selector）"
+                    "tooltip": "Nexa 模型配置（来自 Model Selector）"
                 }),
                 "preset_model": (all_models, {
                     "default": all_models[0],
-                    "tooltip": "🤖 可用模型列表（顶部为已下载模型）"
+                    "tooltip": "可用模型列表（顶部为已下载模型）"
                 }),
                 "custom_model": ("STRING", {
                     "default": "",
                     "multiline": False,
-                    "tooltip": "🤖 自定义模型 ID（格式: author/model:quant）"
+                    "tooltip": "自定义模型 ID（格式: author/model:quant）"
                 }),
                 "auto_download": ("BOOLEAN", {
                     "default": True,
-                    "tooltip": "🤖 自动下载模型（使用 nexa pull）"
+                    "tooltip": "自动下载模型（使用 nexa pull）"
                 }),
                 "max_tokens": ("INT", {
                     "default": 512,
                     "min": 1,
                     "max": 8192,
                     "step": 1,
-                    "tooltip": "🤖 最大生成 token 数"
+                    "tooltip": "最大生成 token 数"
                 }),
                 "temperature": ("FLOAT", {
                     "default": 0.7,
                     "min": 0.0,
                     "max": 2.0,
                     "step": 0.1,
-                    "tooltip": "🤖 温度参数（越高越随机）"
+                    "tooltip": "温度参数（越高越随机）"
                 }),
                 "top_p": ("FLOAT", {
                     "default": 0.9,
                     "min": 0.0,
                     "max": 1.0,
                     "step": 0.05,
-                    "tooltip": "🤖 Top-p 采样"
+                    "tooltip": "Top-p 采样"
                 }),
                 "top_k": ("INT", {
                     "default": 40,
                     "min": 0,
                     "max": 100,
                     "step": 1,
-                    "tooltip": "🤖 Top-k 采样（0 表示禁用）"
+                    "tooltip": "Top-k 采样（0 表示禁用）"
                 }),
                 "repetition_penalty": ("FLOAT", {
                     "default": 1.1,
                     "min": 1.0,
                     "max": 2.0,
                     "step": 0.1,
-                    "tooltip": "🤖 重复惩罚"
+                    "tooltip": "重复惩罚"
                 }),
                 "enable_thinking": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "🤖 启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
+                    "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
                 }),
                 "prompt": ("STRING", {
-                    "default": "🤖 Hello, how are you?",
+                    "default": "Hello, how are you?",
                     "multiline": True,
-                    "tooltip": "🤖 输入提示词"
+                    "tooltip": "输入提示词"
                 }),
             }
         }
@@ -451,16 +451,16 @@ class NexaServiceStatus:
         return {
             "required": {
                 "base_url": ("STRING", {
-                    "default": "🤖 http://127.0.0.1:11434",
-                    "tooltip": "🤖 Nexa SDK 服务地址（可配置）"
+                    "default": "http://127.0.0.1:11434",
+                    "tooltip": "Nexa SDK 服务地址（可配置）"
                 }),
                 "models_dir": ("STRING", {
                     "default": default_models_dir,
-                    "tooltip": "🤖 本地模型目录"
+                    "tooltip": "本地模型目录"
                 }),
                 "refresh": ("BOOLEAN", {
                     "default": False,
-                    "tooltip": "🤖 刷新模型列表"
+                    "tooltip": "刷新模型列表"
                 }),
             }
         }
