@@ -303,10 +303,9 @@ class UnifiedTextGeneration:
         - <think>...</think> (DeepSeek-R1, Qwen3)
         - <thinking>...</thinking>
         - [THINKING]...[/THINKING]
-        """
-        if not enable_thinking:
-            return text, ""
         
+        注意：即使禁用 thinking，也会移除空的思考标签和多余空行
+        """
         thinking = ""
         final_output = text
         
@@ -334,8 +333,19 @@ class UnifiedTextGeneration:
             final_output = re.sub(bracket_pattern, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
             return final_output, thinking
         
-        # 没有找到思考标签
-        return text, ""
+        # 没有找到思考标签，但仍需清理空标签和多余空行
+        # 移除所有空的思考标签
+        final_output = re.sub(r'<think>\s*</think>', '', text, flags=re.DOTALL | re.IGNORECASE)
+        final_output = re.sub(r'<thinking>\s*</thinking>', '', final_output, flags=re.DOTALL | re.IGNORECASE)
+        final_output = re.sub(r'\[THINKING\]\s*\[/THINKING\]', '', final_output, flags=re.DOTALL | re.IGNORECASE)
+        
+        # 清理多余的空行（3个或更多连续换行符）
+        final_output = re.sub(r'\n{3,}', '\n\n', final_output)
+        
+        # 清理开头和结尾的空白
+        final_output = final_output.strip()
+        
+        return final_output, "" if not enable_thinking else thinking
     
     def generate(self, model_config, prompt, max_tokens=256, temperature=0.7, top_p=0.9, top_k=40, repetition_penalty=1.1, enable_thinking=False):
         """生成文本"""
