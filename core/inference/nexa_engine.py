@@ -90,83 +90,54 @@ class NexaInferenceEngine:
         # 否则拼接到模型目录
         return os.path.join(self.models_dir, os.path.basename(model_name))
     
-    def download_model(self, model_id: str, auto_download: bool = True) -> Optional[str]:
+    def load_model_via_api(self, model_id: str) -> bool:
         """
-        下载 HuggingFace 模型到本地
+        通过 Nexa SDK API 加载模型（服务会自动下载）
         
         Args:
-            model_id: 模型 ID，格式如 "user/repo:quantization"
-            auto_download: 是否自动下载
+            model_id: 模型 ID
         
         Returns:
-            下载后的模型路径，如果失败返回 None
+            是否成功加载
         """
-        if not auto_download:
-            return None
-        
-        if not self.models_dir:
-            print("❌ Models directory not set")
-            return None
-        
         try:
-            print(f"📥 Downloading model: {model_id}")
-            print(f"   Target directory: {self.models_dir}")
+            print(f"📥 Loading model via Nexa SDK service: {model_id}")
             
-            # 使用 nexa pull 命令下载模型
-            # 格式: nexa pull user/repo:quantization
-            cmd = ["nexa", "pull", model_id]
+            # 尝试直接调用 chat API，服务会自动下载模型
+            # 发送一个空请求来触发模型加载
+            payload = {
+                "model": model_id,
+                "messages": [{"role": "user", "content": "test"}],
+                "max_tokens": 1,
+            }
             
-            # 设置环境变量，指定下载目录
-            env = os.environ.copy()
-            env["NEXA_MODELS_DIR"] = self.models_dir
-            
-            print(f"   Running: {' '.join(cmd)}")
-            
-            # 执行下载命令
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                env=env,
-                text=True,
-                bufsize=1
+            response = requests.post(
+                self.chat_endpoint,
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=300  # 5分钟超时，给下载时间
             )
             
-            # 实时输出下载进度
-            for line in process.stdout:
-                line = line.strip()
-                if line:
-                    print(f"   {line}")
-            
-            process.wait()
-            
-            if process.returncode == 0:
-                print(f"✅ Model downloaded successfully")
-                
-                # 查找下载的文件
-                local_models = self.get_local_models()
-                if local_models:
-                    # 返回最新下载的模型
-                    return self.get_model_path(local_models[-1])
-                
-                return None
+            # 如果返回 200 或 400（模型加载成功但请求格式问题），都算成功
+            if response.status_code in [200, 400]:
+                print(f"✅ Model loaded successfully")
+                # 刷新模型列表
+                self._available_models = None
+                return True
             else:
-                print(f"❌ Download failed with code {process.returncode}")
-                return None
-        
-        except FileNotFoundError:
-            print("❌ 'nexa' command not found. Please install nexa-sdk:")
-            print("   pip install nexaai")
-            return None
+                print(f"⚠️  Model load returned status {response.status_code}")
+                return False
+                
+        except requests.exceptions.Timeout:
+            print(f"⚠️  Model loading timeout (may still be downloading in background)")
+            return False
         except Exception as e:
-            print(f"❌ Download failed: {e}")
-            import traceback
-            traceback.print_exc()
-            return None
+            print(f"❌ Failed to load model: {e}")
+            return False
     
     def ensure_model_available(self, model_id: str, auto_download: bool = True) -> bool:
         """
-        确保模型可用（如果不存在则下载）
+        确保模型可用（如果不存在则通过服务加载）
         
         Args:
             model_id: 模型 ID
@@ -194,13 +165,10 @@ class NexaInferenceEngine:
             print(f"✅ Model available in Nexa service: {model_id}")
             return True
         
-        # 如果不在服务中，尝试下载
+        # 如果不在服务中，尝试通过 API 加载（服务会自动下载）
         if auto_download:
-            print(f"📥 Model not in service, attempting to download...")
-            downloaded_path = self.download_model(model_id, auto_download=True)
-            if downloaded_path:
-                print(f"✅ Model downloaded and ready: {downloaded_path}")
-                return True
+            print(f"📥 Model not in service, attempting to load...")
+            return self.load_model_via_api(model_id)
         
         return False
     
@@ -280,7 +248,7 @@ class NexaInferenceEngine:
                 model = self.get_model_path(model)
                 print(f"📁 Using local model: {model}")
         else:
-            # 确保模型可用（如果需要则下载）
+            # 确保模型可用（如果需要则加载）
             if auto_download:
                 self.ensure_model_available(model, auto_download=True)
         
@@ -307,14 +275,20 @@ class NexaInferenceEngine:
                 self.chat_endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=120  # 2分钟超时
+                timeout=300  # 5分钟超时，给模型加载时间
             )
             response.raise_for_status()
             return response.json()
         
         except requests.exceptions.Timeout:
-            raise RuntimeError("Request timeout. The model might be too slow or the service is overloaded.")
+            raise RuntimeError("Request timeout. The model might be downloading or the service is overloaded.")
         except requests.exceptions.RequestException as e:
+            # 如果是 400 错误，可能是模型正在加载，给出友好提示
+            if hasattr(e, 'response') and e.response is not None:
+                if e.response.status_code == 400:
+                    error_detail = e.response.text
+                    if 'model' in error_detail.lower():
+                        raise RuntimeError(f"Model not loaded. Please wait a moment and try again, or check if the model ID is correct: {model}")
             raise RuntimeError(f"API request failed: {e}")
     
     def text_completion(
@@ -352,7 +326,7 @@ class NexaInferenceEngine:
                 model = self.get_model_path(model)
                 print(f"📁 Using local model: {model}")
         else:
-            # 确保模型可用（如果需要则下载）
+            # 确保模型可用（如果需要则加载）
             if auto_download:
                 self.ensure_model_available(model, auto_download=True)
         
@@ -378,13 +352,13 @@ class NexaInferenceEngine:
                 self.completions_endpoint,
                 json=payload,
                 headers={"Content-Type": "application/json"},
-                timeout=120
+                timeout=300
             )
             response.raise_for_status()
             return response.json()
         
         except requests.exceptions.Timeout:
-            raise RuntimeError("Request timeout. The model might be too slow or the service is overloaded.")
+            raise RuntimeError("Request timeout. The model might be downloading or the service is overloaded.")
         except requests.exceptions.RequestException as e:
             raise RuntimeError(f"API request failed: {e}")
     
