@@ -469,8 +469,17 @@ class NexaTextGeneration:
             # 提取思考内容
             final_output, thinking = self._extract_thinking(raw_output, enable_thinking)
             
+            # 清理输出：移除可能的角色前缀
+            final_output = final_output.strip()
+            for prefix in ["assistant:", "Assistant:", "ASSISTANT:"]:
+                if final_output.startswith(prefix):
+                    final_output = final_output[len(prefix):].strip()
+                    break
+            
             if enable_thinking and thinking:
                 print(f"   💭 Thinking process extracted ({len(thinking)} chars)")
+            
+            print(f"   ✅ Generated {len(final_output)} characters")
             
             # 格式化原始响应
             import json

@@ -374,8 +374,15 @@ class TextGenerationNode:
             # 提取思考内容
             final_output, thinking = self._extract_thinking(raw_output, enable_thinking)
             
+            # 清理输出：移除 "Assistant:" 前缀和多余空白
+            final_output = final_output.strip()
+            if final_output.lower().startswith("assistant:"):
+                final_output = final_output[10:].strip()  # 移除 "Assistant:" (10个字符)
+            
             if enable_thinking and thinking:
-                print(f" Thinking process extracted ({len(thinking)} chars)")
+                print(f"💭 Thinking process extracted ({len(thinking)} chars)")
+            
+            print(f"✅ Generated {len(final_output)} characters")
             
             return (final_output, thinking)
         
