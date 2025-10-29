@@ -415,6 +415,12 @@ class TextGenerationNode:
         
         # 生成文本
         try:
+            # 设置 stop 序列防止模型过度生成
+            stop_sequences = ["User:", "System:", "
+
+
+"]  # 防止多段输出
+            
             raw_output = engine.generate_text(
                 model_path=model_path,
                 prompt=full_prompt,
@@ -422,7 +428,8 @@ class TextGenerationNode:
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
-                repeat_penalty=repeat_penalty
+                repeat_penalty=repeat_penalty,
+                stop=stop_sequences
             )
             
             print(f"\n📤 原始输出:")
