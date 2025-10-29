@@ -249,6 +249,24 @@ text_generation_models:
         file: mlabonne_Qwen3-8B-abliterated-Q8_0.gguf
         size: 8.1GB
         recommended: false
+    - model_name: Huihui-Qwen3-4B-Instruct-2507-Abliterated
+      repo: mradermacher/Huihui-Qwen3-4B-Instruct-2507-abliterated-GGUF
+      description: 4B Huihui 版本，专门优化的破限制模型
+      capabilities:
+      - uncensored
+      - nsfw
+      - creative_writing
+      - roleplay
+      - instruct_tuned
+      variants:
+      - name: Q4_K_M
+        file: Huihui-Qwen3-4B-Instruct-2507-abliterated.Q4_K_M.gguf
+        size: 2.3GB
+        recommended: true
+      - name: Q8_0
+        file: Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf
+        size: 4.0GB
+        recommended: false
     - model_name: Qwen3-14B-Abliterated
       repo: bartowski/mlabonne_Qwen3-14B-abliterated-GGUF
       description: 14B 顶级破限制模型，最强性能
