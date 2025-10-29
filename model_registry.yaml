@@ -206,41 +206,67 @@ vision_language_models:
         file: llama-joycaption-beta-one-hf-llava.Q8_0.gguf
         size: 7.95GB
         recommended: false
-# 文本生成模型 - 简化版，只保留 Qwen3 系列
+# 文本生成模型 - Qwen3 Abliterated 系列（无审查/支持NSFW）
 # 如需更多模型，请直接将 .gguf 文件放到 /models/LLM/GGUF/ 目录
 text_generation_models:
-  qwen3:
-    series_name: Qwen3
-    description: Qwen 3.0 最新一代文本模型，支持思维模式切换
+  qwen3-abliterated:
+    series_name: Qwen3 Abliterated
+    description: Qwen3 破限制版本，无审查，支持 NSFW 内容（HuggingFace 高下载量）
     business_type: text_generation
     models:
-    - model_name: Qwen3-1.7B
-      repo: unsloth/Qwen3-1.7B-GGUF
-      description: 1.7B 超轻量模型，支持 128K 上下文
+    - model_name: Qwen3-4B-Abliterated
+      repo: bartowski/mlabonne_Qwen3-4B-abliterated-GGUF
+      description: 4B 破限制模型，轻量快速，支持 NSFW
+      capabilities:
+      - uncensored
+      - nsfw
+      - creative_writing
+      - roleplay
       variants:
       - name: Q4_K_M
-        file: Qwen3-1.7B-Q4_K_M.gguf
-        size: 1.03GB
+        file: mlabonne_Qwen3-4B-abliterated-Q4_K_M.gguf
+        size: 2.3GB
         recommended: true
       - name: Q8_0
-        file: Qwen3-1.7B-Q8_0.gguf
-        size: 1.71GB
+        file: mlabonne_Qwen3-4B-abliterated-Q8_0.gguf
+        size: 4.0GB
         recommended: false
-    - model_name: Qwen3-8B
-      repo: Qwen/Qwen3-8B-GGUF
-      description: 8B 旗舰模型，强大的推理和分析能力
+    - model_name: Qwen3-8B-Abliterated
+      repo: bartowski/mlabonne_Qwen3-8B-abliterated-GGUF
+      description: 8B 破限制旗舰模型，强大性能，完全无审查
+      capabilities:
+      - uncensored
+      - nsfw
+      - creative_writing
+      - roleplay
+      - reasoning
       variants:
       - name: Q4_K_M
-        file: Qwen3-8B-Q4_K_M.gguf
-        size: 4.68GB
+        file: mlabonne_Qwen3-8B-abliterated-Q4_K_M.gguf
+        size: 4.7GB
         recommended: true
-      - name: Q5_K_M
-        file: Qwen3-8B-Q5_K_M.gguf
-        size: 5.45GB
-        recommended: false
       - name: Q8_0
-        file: Qwen3-8B-Q8_0.gguf
-        size: 8.11GB
+        file: mlabonne_Qwen3-8B-abliterated-Q8_0.gguf
+        size: 8.1GB
+        recommended: false
+    - model_name: Qwen3-14B-Abliterated
+      repo: bartowski/mlabonne_Qwen3-14B-abliterated-GGUF
+      description: 14B 顶级破限制模型，最强性能
+      capabilities:
+      - uncensored
+      - nsfw
+      - creative_writing
+      - roleplay
+      - reasoning
+      - advanced
+      variants:
+      - name: Q4_K_M
+        file: mlabonne_Qwen3-14B-abliterated-Q4_K_M.gguf
+        size: 8.0GB
+        recommended: true
+      - name: Q8_0
+        file: mlabonne_Qwen3-14B-abliterated-Q8_0.gguf
+        size: 14.0GB
         recommended: false
 video_analysis_models:
   qwen2-vl-video:
