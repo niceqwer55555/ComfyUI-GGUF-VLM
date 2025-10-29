@@ -298,21 +298,21 @@ class NexaTextGeneration:
         从输出中提取思考内容
         
         支持多种格式:
-        1. <think>...</think> (DeepSeek-R1)
+        1. <think>...</think> (Qwen3, DeepSeek-R1)
         2. <thinking>...</thinking>
         3. [THINKING]...[/THINKING]
+        
+        无论 enable_thinking 是否启用，都会移除 think 标签。
+        当 enable_thinking=False 时，不返回 thinking 内容。
         
         Returns:
             (final_output, thinking_content)
         """
-        if not enable_thinking:
-            return text, ""
-        
         # 模式 1: <think>...</think>
         think_pattern = r'<think>(.*?)</think>'
         matches = re.findall(think_pattern, text, re.DOTALL | re.IGNORECASE)
         if matches:
-            thinking = '\n\n'.join(matches)
+            thinking = '\n\n'.join(matches) if enable_thinking else ""
             # 移除思考标签，保留最终答案
             final_output = re.sub(think_pattern, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
             return final_output, thinking
@@ -321,7 +321,7 @@ class NexaTextGeneration:
         thinking_pattern = r'<thinking>(.*?)</thinking>'
         matches = re.findall(thinking_pattern, text, re.DOTALL | re.IGNORECASE)
         if matches:
-            thinking = '\n\n'.join(matches)
+            thinking = '\n\n'.join(matches) if enable_thinking else ""
             final_output = re.sub(thinking_pattern, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
             return final_output, thinking
         
@@ -329,7 +329,7 @@ class NexaTextGeneration:
         bracket_pattern = r'\[THINKING\](.*?)\[/THINKING\]'
         matches = re.findall(bracket_pattern, text, re.DOTALL | re.IGNORECASE)
         if matches:
-            thinking = '\n\n'.join(matches)
+            thinking = '\n\n'.join(matches) if enable_thinking else ""
             final_output = re.sub(bracket_pattern, '', text, flags=re.DOTALL | re.IGNORECASE).strip()
             return final_output, thinking
         
