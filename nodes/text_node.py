@@ -248,7 +248,7 @@ class TextGenerationNode:
                     "step": 1,
                     "tooltip": "Top-k 采样"
                 }),
-                "repeat_penalty": ("FLOAT", {
+                "repetition_penalty": ("FLOAT", {
                     "default": 1.1,
                     "min": 1.0,
                     "max": 2.0,
@@ -260,13 +260,6 @@ class TextGenerationNode:
                     "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
                 }),
             },
-            "optional": {
-                "conversation_history": ("STRING", {
-                    "default": "",
-                    "multiline": True,
-                    "tooltip": "对话历史（可选）"
-                }),
-            }
         }
     
     RETURN_TYPES = ("STRING", "STRING")
@@ -321,7 +314,7 @@ class TextGenerationNode:
         # 没有找到思考标签
         return text, ""
     
-    def generate(self, model, prompt, max_tokens=512, temperature=0.7, top_p=0.9, top_k=40, repeat_penalty=1.1, enable_thinking=False, conversation_history=""):
+    def generate(self, model, prompt, max_tokens=512, temperature=0.7, top_p=0.9, top_k=40, repetition_penalty=1.1, enable_thinking=False):
         """生成文本"""
         print("\n" + "="*80)
         print(" ComfyUI Text Generation - 开始生成")
@@ -342,7 +335,7 @@ class TextGenerationNode:
         print(f"  - temperature: {temperature}")
         print(f"  - top_p: {top_p}")
         print(f"  - top_k: {top_k}")
-        print(f"  - repeat_penalty: {repeat_penalty}")
+        print(f"  - repetition_penalty: {repetition_penalty}")
         print(f"  - enable_thinking: {enable_thinking}")
         
         # 加载模型（如果未加载）
@@ -383,18 +376,14 @@ class TextGenerationNode:
                 system_prompt_text = "no_think"
                 print(f"  - 创建 no_think 提示词")
         
-        # 构建完整提示词
+        # 构建完整的 prompt
         full_prompt_parts = []
         
         # 1. 系统提示词（如果有）
         if system_prompt_text:
             full_prompt_parts.append(f"System: {system_prompt_text}")
         
-        # 2. 对话历史（如果有）
-        if conversation_history:
-            full_prompt_parts.append(conversation_history)
-        
-        # 3. 当前用户输入
+        # 2. 当前用户输入
         full_prompt_parts.append(f"User: {prompt}")
         full_prompt_parts.append("Assistant:")
         

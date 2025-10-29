@@ -293,13 +293,6 @@ class NexaTextGeneration:
                     "default": False,
                     "tooltip": "启用思考模式（支持 DeepSeek-R1, Qwen3-Thinking 等模型）"
                 }),
-            },
-            "optional": {
-                "conversation_history": ("STRING", {
-                    "default": "",
-                    "multiline": True,
-                    "tooltip": "对话历史（JSON 格式的消息列表，可选）"
-                }),
             }
         }
     
@@ -365,8 +358,7 @@ class NexaTextGeneration:
         top_p: float = 0.9,
         top_k: int = 40,
         repetition_penalty: float = 1.1,
-        enable_thinking: bool = False,
-        conversation_history: str = ""
+        enable_thinking: bool = False
     ):
         """生成文本"""
         
@@ -420,22 +412,11 @@ class NexaTextGeneration:
         # 构建消息列表
         messages = []
         
-        # 1. 系统提示词
+        # 1. 系统提示词（如果有）
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         
-        # 2. 对话历史（如果提供）
-        if conversation_history:
-            try:
-                import json
-                history = json.loads(conversation_history)
-                if isinstance(history, list):
-                    messages.extend(history)
-            except:
-                # 如果不是 JSON 格式，作为普通文本添加
-                messages.append({"role": "user", "content": conversation_history})
-        
-        # 3. 当前用户输入
+        # 2. 当前用户输入
         messages.append({"role": "user", "content": prompt})
         
         print(f"🤖 Generating text with Nexa SDK...")
