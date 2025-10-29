@@ -1,33 +1,23 @@
 # ComfyUI-GGUF-FX
 
-Complete GGUF model support for ComfyUI with three inference modes and auto-download capabilities.
+Complete GGUF model support for ComfyUI with local and Nexa SDK inference modes.
 
 ## 🌟 Features
 
-### Three Inference Modes
+### Two Inference Modes
 
-1. **GGUF Mode** - Local quantized models using llama-cpp-python
-2. **Transformers Mode** - Full HuggingFace models
-3. **Nexa SDK Mode** - Remote/local GGUF via Nexa SDK service (NEW)
+1. **Text Generation (Local)** - Direct GGUF model loading using llama-cpp-python
+2. **Nexa SDK** - Managed models via Nexa SDK service
 
-### Nexa SDK Integration (NEW)
+### Key Features
 
-- ✅ **Auto-download models** from HuggingFace
-- ✅ **Preset model list** with popular models
-- ✅ **Dual mode support**: Remote service + Local GGUF files
-- ✅ **Configurable API endpoints**
-- ✅ **ComfyUI /models/LLM integration**
+- ✅ **Simple configuration** - Minimal parameters, maximum functionality
+- ✅ **Auto model detection** - Nexa SDK automatically lists downloaded models
 - ✅ **Thinking mode support** (DeepSeek-R1, Qwen3-Thinking)
-- ✅ **Conversation history management**
-- ✅ **Multi-endpoint support**
-
-### Other Features
-
-- 🖼️ **Multi-image analysis** (up to 6 images)
-- 🎯 **System prompt presets**
-- 📝 **Unified output naming**: all text outputs as `context`
-- 🔄 **Automatic model caching**
-- ⚡ **Device optimization** (CUDA, MPS, CPU)
+- ✅ **Stop sequences** - Prevent over-generation
+- ✅ **Paragraph merging** - Clean single-paragraph output
+- ✅ **Detailed logging** - Debug-friendly console output
+- ✅ **Device optimization** (CUDA, MPS, CPU)
 
 ## 📦 Installation
 
@@ -40,297 +30,214 @@ cd ComfyUI-GGUF-FX
 pip install -r requirements.txt
 ```
 
-### 2. Install Nexa SDK (for Nexa mode)
+### 2. For Nexa SDK Mode (Optional)
 
 ```bash
+# Install Nexa SDK
 pip install nexaai
-```
 
-### 3. Start Nexa SDK Service
-
-```bash
-# Start the service
-nexa server
-
-# Or specify a custom port
-nexa server --port 11434
+# Start Nexa service
+nexa serve
 ```
 
 The service will be available at `http://127.0.0.1:11434`
 
 ## 🚀 Quick Start
 
-### Using Nexa SDK Mode (Recommended)
+### Using Text Generation (Local GGUF)
 
-#### 1. Basic Text Generation with Auto-Download
-
-```
-[Nexa Model Selector]
-├─ base_url: http://127.0.0.1:11434
-├─ models_dir: /workspace/ComfyUI/models/LLM
-├─ model_source: Remote (Nexa Service)
-└─ system_prompt: "You are a helpful assistant."
-    ↓
-[Nexa Text Generation]
-├─ preset_model: DavidAU/Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max-GGUF:Q6_K
-├─ auto_download: True  ✅ Will download if not exists
-├─ prompt: "Hello, how are you?"
-└─ enable_thinking: False
-    ↓
-Output: context, thinking, raw_response
-```
-
-#### 2. Using Custom Model (HuggingFace URL)
-
-```
-[Nexa Text Generation]
-├─ preset_model: Custom (输入自定义模型)
-├─ custom_model: https://huggingface.co/mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF/resolve/main/Qwen3-4B-Thinking-2507-Uncensored-Fixed.Q8_0.gguf
-├─ auto_download: True
-└─ prompt: "Explain quantum computing"
-```
-
-The node will:
-1. Parse the HuggingFace URL
-2. Convert to model ID: `mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0`
-3. Download the model if not exists
-4. Load and run inference
-
-#### 3. Using Local GGUF Files
-
-```bash
-# Copy your GGUF file to ComfyUI models directory
-cp my-model.gguf /workspace/ComfyUI/models/LLM/
-```
-
-```
-[Nexa Model Selector]
-├─ model_source: Local (GGUF File)
-    ↓
-[Nexa Text Generation]
-├─ preset_model: Custom (输入自定义模型)
-├─ custom_model: my-model.gguf
-└─ auto_download: False
-```
-
-### Using GGUF Mode (Local)
+**Recommended for local GGUF files**
 
 ```
 [Text Model Loader]
-├─ model: Select from dropdown
+├─ model: Select your GGUF file
 └─ device: cuda/cpu/mps
     ↓
-[Text Generation Node]
-├─ prompt: "Your prompt here"
-├─ max_tokens: 512
-└─ temperature: 0.7
+[Text Generation]
+├─ max_tokens: 256  ← Recommended for single paragraph
+├─ temperature: 0.7
+├─ top_p: 0.8
+├─ top_k: 40
+├─ repetition_penalty: 1.1
+├─ enable_thinking: False
+└─ prompt: "Your prompt here"
     ↓
 Output: context, thinking
 ```
 
-### Using Transformers Mode
+**Features:**
+- ✅ Direct file access
+- ✅ No service required
+- ✅ Fast and simple
+- ✅ Stop sequences prevent over-generation
+- ✅ Automatic paragraph merging
+
+### Using Nexa SDK Mode
+
+**Recommended for Nexa SDK ecosystem**
+
+#### Step 1: Download Model
+
+```bash
+# Download a model using Nexa CLI
+nexa pull mradermacher/Huihui-Qwen3-4B-Instruct-2507-abliterated-GGUF:Q8_0 --model-type llm
+
+# Check downloaded models
+nexa list
+```
+
+#### Step 2: Use in ComfyUI
 
 ```
-[Transformers Vision Model Loader]
-├─ model: Qwen/Qwen2-VL-7B-Instruct
-└─ device: cuda
+[Nexa Model Selector]
+├─ base_url: http://127.0.0.1:11434
+├─ refresh_models: ☐
+└─ system_prompt: (optional)
     ↓
-[Transformers Vision Generation]
-├─ image: Connect image
-└─ prompt: "Describe this image"
+[Nexa SDK Text Generation]
+├─ preset_model: Select from dropdown (auto-populated)
+├─ max_tokens: 256
+├─ temperature: 0.7
+└─ prompt: "Your prompt here"
     ↓
-Output: context
+Output: context, thinking
 ```
+
+**Features:**
+- ✅ Centralized model management
+- ✅ Auto-populated model list
+- ✅ Supports `nexa pull` workflow
 
 ## 📋 Available Nodes
 
-### Nexa SDK Nodes
+### Text Generation Nodes (Local GGUF)
 
-#### 🔷 Nexa Model Selector
-Configure Nexa SDK service and model source.
-
-**Parameters:**
-- `base_url`: Nexa SDK service URL (default: `http://127.0.0.1:11434`)
-- `models_dir`: Local models directory (default: `/workspace/ComfyUI/models/LLM`)
-- `model_source`: Remote (Nexa Service) or Local (GGUF File)
-- `refresh_models`: Refresh model list
-- `system_prompt`: System prompt (optional)
-
-**Outputs:**
-- `model_config`: Configuration for Text Generation node
-- `available_models`: List of available models
-
-#### 🔷 Nexa Text Generation
-Generate text using Nexa SDK with auto-download support.
+#### 🔷 Text Model Loader
+Load GGUF models from `/workspace/ComfyUI/models/LLM/GGUF/`
 
 **Parameters:**
-- `model_config`: From Model Selector
-- `preset_model`: Select from preset models or use custom
-- `custom_model`: Custom model ID, HuggingFace URL, or local filename
-- `auto_download`: Auto-download model if not exists (default: True)
-- `prompt`: Input prompt
-- `max_tokens`: Maximum tokens to generate (1-8192)
+- `model`: Select from available GGUF files
+- `device`: cuda/cpu/mps
+- `n_ctx`: Context window (default: 8192)
+- `n_gpu_layers`: GPU layers (-1 for all)
+
+**Output:**
+- `model`: Model configuration
+
+#### 🔷 Text Generation
+Generate text with loaded GGUF model
+
+**Parameters:**
+- `model`: From Text Model Loader
+- `max_tokens`: Maximum tokens (1-8192, **recommended: 256**)
 - `temperature`: Temperature (0.0-2.0)
 - `top_p`: Top-p sampling (0.0-1.0)
 - `top_k`: Top-k sampling (0-100)
 - `repetition_penalty`: Repetition penalty (1.0-2.0)
 - `enable_thinking`: Enable thinking mode
-- `conversation_history`: JSON format conversation history (optional)
+- `prompt`: Input prompt (**at bottom for easy editing**)
 
 **Outputs:**
-- `context`: Generated text (final answer)
+- `context`: Generated text
 - `thinking`: Thinking process (if enabled)
-- `raw_response`: Raw API response
+
+**Features:**
+- ✅ Stop sequences: `["User:", "System:", "\n\n\n", "\n\n##", "\n\nNote:", "\n\nThis "]`
+- ✅ Automatic paragraph merging for single-paragraph prompts
+- ✅ Detailed console logging
+
+### Nexa SDK Nodes
+
+#### 🔷 Nexa Model Selector
+Configure Nexa SDK service
+
+**Parameters:**
+- `base_url`: Service URL (default: `http://127.0.0.1:11434`)
+- `refresh_models`: Refresh model list
+- `system_prompt`: System prompt (optional)
+
+**Output:**
+- `model_config`: Configuration for Text Generation
+
+#### 🔷 Nexa SDK Text Generation
+Generate text using Nexa SDK
+
+**Parameters:**
+- `model_config`: From Model Selector
+- `preset_model`: Select from dropdown (auto-populated from `nexa list`)
+- `custom_model`: Custom model ID (format: `author/model:quant`)
+- `auto_download`: Auto-download if missing
+- `max_tokens`: Maximum tokens (**recommended: 256**)
+- `temperature`, `top_p`, `top_k`, `repetition_penalty`: Generation parameters
+- `enable_thinking`: Enable thinking mode
+- `prompt`: Input prompt (**at bottom**)
+
+**Outputs:**
+- `context`: Generated text
+- `thinking`: Thinking process (if enabled)
 
 **Preset Models:**
-1. `DavidAU/Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max-GGUF:Q6_K`
-2. `prithivMLmods/Qwen3-4B-2507-abliterated-GGUF:Q8_0`
-3. `mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0`
-4. `mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF:Q8_0`
-5. `Triangle104/Josiefied-Qwen3-4B-abliterated-v2-Q8_0-GGUF`
-
-**Supported Input Formats:**
-- Model ID: `user/repo:quantization`
-- HuggingFace URL: `https://huggingface.co/user/repo/blob/main/file.gguf`
-- Local file: `model.gguf`
+- `DavidAU/Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max-GGUF:Q6_K`
+- `mradermacher/Huihui-Qwen3-4B-Instruct-2507-abliterated-GGUF:Q8_0`
+- `prithivMLmods/Qwen3-4B-2507-abliterated-GGUF:Q8_0`
 
 #### 🔷 Nexa Service Status
-Check Nexa SDK service status and list models.
+Check Nexa SDK service status
 
 **Parameters:**
 - `base_url`: Service URL
-- `models_dir`: Local models directory
 - `refresh`: Refresh model list
 
-**Outputs:**
-- `status`: Service status summary
-- `remote_models`: Remote models list
-- `local_models`: Local models list
+**Output:**
+- `status`: Service status and model list
 
-### GGUF Nodes
+## 🎯 Best Practices
 
-- **Text Model Loader** - Load GGUF text models
-- **Text Generation Node** - Generate text with GGUF models
-- **Vision Model Loader (GGUF)** - Load GGUF vision models
-- **Vision Description Node** - Generate image descriptions
+### For Single-Paragraph Output
 
-### Transformers Nodes
-
-- **Transformers Vision Model Loader** - Load HuggingFace vision models
-- **Transformers Vision Generation** - Generate with Transformers models
-- **Multi-Image Analysis** - Analyze multiple images (up to 6)
-
-### Utility Nodes
-
-- **System Prompt Config** - Configure system prompts with presets
-
-## 🎯 Use Cases
-
-### 1. Auto-Download and Chat
-
+**System Prompt:**
 ```
-[Nexa Model Selector]
-└─ system_prompt: "You are a creative writer."
-    ↓
-[Nexa Text Generation]
-├─ preset_model: mradermacher/Qwen3-Short-Story-Instruct-Uncensored-262K-ctx-4B-GGUF:Q8_0
-├─ auto_download: True  ✅ Downloads automatically
-├─ prompt: "Write a short story about AI"
-└─ max_tokens: 1024
+You are an expert prompt generator. Output ONLY in English.
+
+**CRITICAL: Output EXACTLY ONE continuous paragraph. Maximum 400 words.**
 ```
 
-### 2. Thinking Mode (DeepSeek-R1 Style)
-
+**Parameters:**
 ```
-[Nexa Text Generation]
-├─ preset_model: mradermacher/Qwen3-4B-Thinking-2507-Uncensored-Fixed-GGUF:Q8_0
-├─ enable_thinking: True  ✅ Extracts thinking process
-└─ prompt: "Solve: What is 25 * 37?"
-    ↓
-Output:
-├─ context: "The answer is 925"
-└─ thinking: "<think>Let me calculate... 25 * 37 = 25 * 30 + 25 * 7...</think>"
+max_tokens: 256  ← Key setting!
+temperature: 0.7
+top_p: 0.8
+top_k: 20
 ```
 
-### 3. Conversation with History
+**Why max_tokens=256?**
+- ✅ Prevents over-generation
+- ✅ Model completes task without extra commentary
+- ✅ Reduces from ~2700 chars (11 paragraphs) to ~1300 chars (1 paragraph)
 
-```python
-# Build conversation history
-history = [
-    {"role": "user", "content": "What is Python?"},
-    {"role": "assistant", "content": "Python is a programming language..."},
-    {"role": "user", "content": "What are its main features?"}
-]
+### For Multi-Turn Conversations
 
-# In ComfyUI node
-[Nexa Text Generation]
-├─ conversation_history: json.dumps(history)
-└─ prompt: "Give me an example"
+Include history directly in prompt:
+```
+User: Hello
+Assistant: Hi! How can I help?
+User: Tell me a joke
 ```
 
-### 4. Multi-Image Analysis
-
-```
-[Multi-Image Analysis]
-├─ image_1: Connect image
-├─ image_2: Connect image
-├─ image_3: Connect image
-└─ prompt: "Compare these images"
-    ↓
-Output: Detailed comparison
-```
-
-### 5. Custom Endpoint
-
-```
-[Nexa Model Selector]
-├─ base_url: http://192.168.1.100:8080  # Custom server
-├─ models_dir: /custom/path/to/models
-└─ model_source: Remote (Nexa Service)
-```
-
-## 🔧 Configuration
-
-### Model Directory
-
-Default: `/workspace/ComfyUI/models/LLM`
-
-All GGUF models (Nexa SDK, GGUF mode) are stored in this directory.
-
-### API Endpoint
-
-Default: `http://127.0.0.1:11434`
-
-Configurable in each Nexa node. Supports:
-- Local: `http://127.0.0.1:11434`
-- Custom port: `http://localhost:8080`
-- Remote: `http://192.168.1.100:11434`
-
-### Auto-Download
-
-When enabled, the system will:
-1. Check if model exists in Nexa service
-2. If not, download from HuggingFace using `nexa pull`
-3. Store in `/models/LLM` directory
-4. Load and run inference
-
-**Requirements:**
-- Nexa SDK installed: `pip install nexaai`
-- Internet connection for first download
-- Sufficient disk space
+No need for separate conversation history parameter.
 
 ## 💭 Thinking Mode
 
-Supports automatic extraction of thinking process from models like DeepSeek-R1 and Qwen3-Thinking.
+Automatically extracts thinking process from models like DeepSeek-R1 and Qwen3-Thinking.
 
 **Supported Tags:**
-- `<think>...</think>` (DeepSeek-R1)
+- `<think>...</think>` (DeepSeek-R1, Qwen3)
 - `<thinking>...</thinking>`
 - `[THINKING]...[/THINKING]`
 
 **Usage:**
 ```
-[Nexa Text Generation]
+[Text Generation]
 ├─ enable_thinking: True
 └─ prompt: "Explain your reasoning"
     ↓
@@ -340,119 +247,114 @@ Outputs:
 ```
 
 **Disable Thinking:**
-Set `enable_thinking: False` or add `no_think` to system prompt.
+- Set `enable_thinking: False`
+- Or add `no_think` to system prompt
 
-## 📊 Model Comparison
+## 📊 Mode Comparison
 
-| Mode | Pros | Cons | Use Case |
-|------|------|------|----------|
-| **Nexa SDK** | Auto-download, Remote service, Easy switching | Requires service running | Quick testing, Shared models |
-| **GGUF** | Fast, Low memory, Offline | Manual download | Production, Offline use |
-| **Transformers** | Full precision, Latest models | High memory, Slow | Research, Best quality |
+| Feature | Text Generation (Local) | Nexa SDK |
+|---------|------------------------|----------|
+| **Setup** | Copy GGUF file | `nexa pull` |
+| **Service** | Not required | Requires `nexa serve` |
+| **Model Management** | Manual | CLI (`nexa list`, `nexa pull`) |
+| **Use Case** | Local files, production | Nexa ecosystem, shared models |
+| **Speed** | Fast | Fast (via service) |
+| **Flexibility** | Any GGUF file | Only `nexa pull` models |
+
+**Recommendation:**
+- Use **Text Generation** for local GGUF files
+- Use **Nexa SDK** if you're already using Nexa ecosystem
 
 ## 🐛 Troubleshooting
+
+### Output Too Long (Multiple Paragraphs)
+
+**Problem:** Model generates 11 paragraphs instead of 1
+
+**Solution:**
+1. **Reduce max_tokens** from 512 to 256
+2. **Strengthen system prompt**: Add "EXACTLY ONE paragraph"
+3. Stop sequences are already configured
 
 ### Nexa Service Not Available
 
 **Problem:** `❌ Nexa SDK service is not available`
 
 **Solution:**
-1. Check if service is running: `curl http://127.0.0.1:11434/v1/models`
-2. Start service: `nexa server`
-3. Check firewall settings
-4. Verify correct URL in node
+1. Start service: `nexa serve`
+2. Check: `curl http://127.0.0.1:11434/v1/models`
+3. Verify URL in node
 
-### Model Download Failed
+### Model Not in Dropdown
 
-**Problem:** `❌ Download failed`
-
-**Solution:**
-1. Check internet connection
-2. Verify HuggingFace is accessible
-3. Check disk space
-4. Install Nexa SDK: `pip install nexaai`
-5. Try manual download: `nexa pull user/repo:quantization`
-
-### Local Model Not Found
-
-**Problem:** `❌ Local model not found`
+**Problem:** Downloaded model doesn't appear in Nexa SDK dropdown
 
 **Solution:**
-1. Check file exists: `ls /workspace/ComfyUI/models/LLM/`
-2. Verify filename ends with `.gguf`
-3. Check file permissions
-4. Use absolute path if needed
+1. Check: `nexa list`
+2. Click "refresh_models" in Nexa Model Selector
+3. Restart ComfyUI
 
-### Out of Memory
+### 0B Entries in `nexa list`
 
-**Problem:** CUDA out of memory
-
-**Solution:**
-1. Use smaller quantization (Q4_0 instead of Q8_0)
-2. Reduce `max_tokens`
-3. Use CPU mode
-4. Close other applications
-
-### Thinking Mode Not Working
-
-**Problem:** Thinking output is empty
+**Problem:** `nexa list` shows 0B entries
 
 **Solution:**
-1. Enable `enable_thinking: True`
-2. Use a thinking-capable model (e.g., Qwen3-Thinking)
-3. Check model output contains thinking tags
-4. Remove `no_think` from system prompt
+```bash
+# Clean up invalid entries
+rm -rf ~/.cache/nexa.ai/nexa_sdk/models/local
+rm -rf ~/.cache/nexa.ai/nexa_sdk/models/workspace
+find ~/.cache/nexa.ai/nexa_sdk/models -name "*.lock" -delete
+
+# Verify
+nexa list
+```
 
 ## 📁 Directory Structure
 
 ```
 ComfyUI-GGUF-FX/
-├── __init__.py                     # Node registration
 ├── README.md                       # This file
+├── NEXA_SDK_GUIDE.md              # Detailed Nexa SDK guide
 ├── requirements.txt                # Dependencies
+├── __init__.py                     # Node registration
 ├── config/
-│   ├── node_definitions.py        # Node parameter definitions
 │   └── paths.py                    # Path configuration
 ├── core/
 │   ├── inference_engine.py        # GGUF inference engine
 │   ├── model_loader.py            # Model loader
 │   └── inference/
-│       ├── nexa_engine.py         # Nexa SDK engine (with auto-download)
+│       ├── nexa_engine.py         # Nexa SDK engine
 │       └── transformers_engine.py # Transformers engine
 ├── nodes/
-│   ├── text_node.py               # GGUF text nodes
-│   ├── vision_node.py             # GGUF vision nodes
-│   ├── nexa_text_node.py          # Nexa SDK nodes (with presets)
-│   ├── vision_node_transformers.py # Transformers vision nodes
-│   ├── multi_image_node.py        # Multi-image analysis
+│   ├── text_node.py               # Text Generation nodes
+│   ├── nexa_text_node.py          # Nexa SDK nodes
+│   ├── vision_node.py             # Vision nodes
 │   └── system_prompt_node.py      # System prompt config
 └── utils/
-    ├── downloader.py              # Model downloader
     ├── device_optimizer.py        # Device optimization
     └── system_prompts.py          # System prompt presets
 ```
 
-## 🔄 Updates
+## 🔄 Recent Updates
 
-### v2.1 (Latest)
-- ✅ **Auto-download support** for Nexa SDK models
-- ✅ **Preset model list** with 5 popular models
-- ✅ **HuggingFace URL parsing** - paste URLs directly
-- ✅ **Custom model input** - support model ID, URL, or filename
-- ✅ **Auto-download toggle** - enable/disable per request
+### v2.2 (2025-10-29)
+- ✅ **Simplified Nexa Model Selector** - Removed unused `models_dir` and `model_source`
+- ✅ **Removed unused outputs** - Cleaner node interface
+- ✅ **Moved prompt to bottom** - Better UX for long prompts
+- ✅ **Removed conversation_history** - Use prompt directly
+- ✅ **Stop sequences** - Prevent over-generation
+- ✅ **Paragraph merging** - Clean single-paragraph output
+- ✅ **Dynamic model list** - Auto-populated from Nexa SDK API
+- ✅ **Detailed logging** - Debug-friendly console output
+
+### v2.1
+- ✅ Nexa SDK integration
+- ✅ Preset model list
+- ✅ Thinking mode support
 
 ### v2.0
-- ✅ Nexa SDK integration
-- ✅ ComfyUI /models/LLM directory integration
-- ✅ Configurable API endpoints
-- ✅ Unified output naming (context)
-- ✅ Dual mode support (Remote + Local)
-
-### v1.0
-- ✅ GGUF mode
-- ✅ Transformers mode
-- ✅ Multi-image analysis
-- ✅ System prompt presets
+- ✅ GGUF mode with llama-cpp-python
+- ✅ ComfyUI /models/LLM integration
 
 ## 📝 Requirements
 
@@ -462,7 +364,7 @@ transformers>=4.30.0
 torch>=2.0.0
 Pillow>=9.0.0
 requests>=2.25.0
-nexaai  # For Nexa SDK mode
+nexaai  # Optional, for Nexa SDK mode
 ```
 
 ## 🤝 Contributing
@@ -483,6 +385,7 @@ MIT License - see LICENSE file for details
 
 - **GitHub**: https://github.com/weekii/ComfyUI-GGUF-FX
 - **Nexa SDK**: https://github.com/NexaAI/nexa-sdk
+- **Nexa SDK Guide**: [NEXA_SDK_GUIDE.md](NEXA_SDK_GUIDE.md)
 - **ComfyUI**: https://github.com/comfyanonymous/ComfyUI
 
 ## 👤 Author
@@ -499,5 +402,5 @@ MIT License - see LICENSE file for details
 ---
 
 **Status**: ✅ Production Ready  
-**Version**: 2.1  
+**Version**: 2.2  
 **Last Updated**: 2025-10-29
