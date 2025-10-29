@@ -126,7 +126,7 @@ class UnifiedTextModelSelector:
             
             # 获取模型路径
             loader = ModelLoader()
-            model_path = loader.get_model_path(local_model)
+            model_path = loader.find_model(local_model)
             
             if not os.path.exists(model_path):
                 error_msg = f"❌ Model file not found: {model_path}"
