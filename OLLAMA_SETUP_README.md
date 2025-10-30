@@ -14,10 +14,17 @@ chmod +x setup_ollama_gguf.sh
 - 下载并安装最新版本
 - 配置到 `/workspace/ollama` 目录
 
-✅ **导入 GGUF 模型**
-- 自动扫描 ComfyUI 模型目录
+✅ **智能模型管理**
+- 自动扫描本地 GGUF 模型
+- **如果没有模型，自动提供下载选项**
+- 支持从 HuggingFace 下载推荐模型
 - 交互式选择要导入的模型
 - 自动创建 Ollama 模型
+
+✅ **推荐模型下载**
+- Huihui-Qwen3-4B-Instruct (4.0GB, Q8_0) - 推荐
+- Qwen2.5-3B-Instruct (3.4GB, Q8_0)
+- Llama-3.2-3B-Instruct (3.4GB, Q8_0)
 
 ✅ **启动服务**
 - 后台运行 Ollama 服务
@@ -38,9 +45,13 @@ chmod +x setup_ollama_gguf.sh
 
 ```
 1. 检查环境
-   └─ 扫描 GGUF 模型文件
+   └─ 扫描本地 GGUF 模型
+   └─ 如果没有，提供下载选项
 
-2. 安装 Ollama
+2. 下载模型（可选）
+   └─ 从 HuggingFace 下载推荐模型
+
+3. 安装 Ollama
    └─ 下载并安装到系统
 
 3. 配置目录
@@ -72,9 +83,24 @@ $ ./setup_ollama_gguf.sh
 ================================
 检查环境
 ================================
+ℹ️  扫描本地 GGUF 模型...
+⚠️  未找到本地 GGUF 模型文件
+
+ℹ️  是否下载推荐的 GGUF 模型？
+
+推荐模型列表:
+  [1] Huihui-Qwen3-4B-Instruct (4.0GB, Q8_0) - 推荐
+  [2] Qwen2.5-3B-Instruct (3.4GB, Q8_0)
+  [3] Llama-3.2-3B-Instruct (3.4GB, Q8_0)
+  [0] 跳过下载，退出脚本
+
+请选择 (0-3): 1
+ℹ️  下载 Huihui-Qwen3-4B-Instruct-2507-abliterated Q8_0...
+ℹ️  开始下载模型到: /workspace/ComfyUI/models/LLM/GGUF/...
+✅ 模型下载完成
+
 ℹ️  可用的 GGUF 模型:
   [0] Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf (4.0G)
-  [1] Qwen3-8B-64k-Josiefied-Uncensored-HORROR-Max.Q6_K.gguf (6.9G)
 ✅ 环境检查完成
 
 ================================

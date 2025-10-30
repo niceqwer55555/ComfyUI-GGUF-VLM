@@ -69,13 +69,77 @@ if [ ! -d "$COMFYUI_MODELS_DIR" ]; then
 fi
 
 # 列出可用的 GGUF 模型
-print_info "可用的 GGUF 模型:"
-GGUF_FILES=($(find "$COMFYUI_MODELS_DIR" -name "*.gguf" -type f))
+print_info "扫描本地 GGUF 模型..."
+GGUF_FILES=($(find "$COMFYUI_MODELS_DIR" -name "*.gguf" -type f 2>/dev/null))
+
 if [ ${#GGUF_FILES[@]} -eq 0 ]; then
-    print_error "未找到任何 GGUF 模型文件"
-    exit 1
+    print_warning "未找到本地 GGUF 模型文件"
+    echo ""
+    print_info "是否下载推荐的 GGUF 模型？"
+    echo ""
+    echo "推荐模型列表:"
+    echo "  [1] Huihui-Qwen3-4B-Instruct (4.0GB, Q8_0) - 推荐"
+    echo "  [2] Qwen2.5-3B-Instruct (3.4GB, Q8_0)"
+    echo "  [3] Llama-3.2-3B-Instruct (3.4GB, Q8_0)"
+    echo "  [0] 跳过下载，退出脚本"
+    echo ""
+    read -p "请选择 (0-3): " DOWNLOAD_CHOICE
+    
+    case $DOWNLOAD_CHOICE in
+        1)
+            print_info "下载 Huihui-Qwen3-4B-Instruct-2507-abliterated Q8_0..."
+            DOWNLOAD_URL="https://huggingface.co/mradermacher/Huihui-Qwen3-4B-Instruct-2507-abliterated-GGUF/resolve/main/Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf"
+            DOWNLOAD_FILE="Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf"
+            ;;
+        2)
+            print_info "下载 Qwen2.5-3B-Instruct Q8_0..."
+            DOWNLOAD_URL="https://huggingface.co/Qwen/Qwen2.5-3B-Instruct-GGUF/resolve/main/qwen2.5-3b-instruct-q8_0.gguf"
+            DOWNLOAD_FILE="qwen2.5-3b-instruct-q8_0.gguf"
+            ;;
+        3)
+            print_info "下载 Llama-3.2-3B-Instruct Q8_0..."
+            DOWNLOAD_URL="https://huggingface.co/bartowski/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q8_0.gguf"
+            DOWNLOAD_FILE="Llama-3.2-3B-Instruct-Q8_0.gguf"
+            ;;
+        0)
+            print_info "跳过下载，退出脚本"
+            exit 0
+            ;;
+        *)
+            print_error "无效的选择"
+            exit 1
+            ;;
+    esac
+    
+    # 创建模型目录
+    mkdir -p "$COMFYUI_MODELS_DIR"
+    
+    # 下载模型
+    print_info "开始下载模型到: $COMFYUI_MODELS_DIR/$DOWNLOAD_FILE"
+    print_info "这可能需要几分钟到几十分钟，取决于网络速度..."
+    
+    if command -v wget &> /dev/null; then
+        wget -c "$DOWNLOAD_URL" -O "$COMFYUI_MODELS_DIR/$DOWNLOAD_FILE" || {
+            print_error "下载失败"
+            exit 1
+        }
+    elif command -v curl &> /dev/null; then
+        curl -L -C - "$DOWNLOAD_URL" -o "$COMFYUI_MODELS_DIR/$DOWNLOAD_FILE" || {
+            print_error "下载失败"
+            exit 1
+        }
+    else
+        print_error "未找到 wget 或 curl，无法下载"
+        exit 1
+    fi
+    
+    print_success "模型下载完成"
+    
+    # 重新扫描
+    GGUF_FILES=($(find "$COMFYUI_MODELS_DIR" -name "*.gguf" -type f))
 fi
 
+print_info "可用的 GGUF 模型:"
 for i in "${!GGUF_FILES[@]}"; do
     filename=$(basename "${GGUF_FILES[$i]}")
     size=$(du -h "${GGUF_FILES[$i]}" | cut -f1)
