@@ -71,7 +71,7 @@ class UnifiedTextModelSelector:
                 }),
                 "api_type": (["Ollama", "Nexa SDK", "OpenAI Compatible"], {
                     "default": "Ollama",
-                    "tooltip": "API 类型"
+                    "tooltip": "API 类型（推荐使用 Ollama）"
                 }),
                 "remote_model": ("STRING", {
                     "default": "",
