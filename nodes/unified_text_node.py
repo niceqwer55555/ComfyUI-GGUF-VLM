@@ -52,16 +52,9 @@ class UnifiedTextModelSelector:
                     "step": 512,
                     "tooltip": "上下文窗口大小"
                 }),
-                "n_gpu_layers": (["All (Auto)", "CPU Only", "Custom"], {
-                    "default": "All (Auto)",
-                    "tooltip": "GPU 加速模式：All=全部层使用GPU，CPU Only=仅CPU，Custom=自定义层数"
-                }),
-                "custom_gpu_layers": ("INT", {
-                    "default": 35,
-                    "min": 0,
-                    "max": 100,
-                    "step": 1,
-                    "tooltip": "自定义 GPU 层数（仅在选择 Custom 时使用）"
+                "device": (["Auto", "GPU", "CPU"], {
+                    "default": "Auto",
+                    "tooltip": "运行设备 (Auto=自动检测, GPU=全部GPU, CPU=仅CPU)"
                 }),
                 # Remote 模式参数
                 "base_url": ("STRING", {
@@ -102,8 +95,7 @@ class UnifiedTextModelSelector:
         mode: str,
         local_model: str = "",
         n_ctx: int = 8192,
-        n_gpu_layers: str = "All (Auto)",
-        custom_gpu_layers: int = 35,
+        device: str = "Auto",
         base_url: str = "http://127.0.0.1:11434",
         api_type: str = "Ollama",
         remote_model: str = "",
@@ -133,27 +125,35 @@ class UnifiedTextModelSelector:
                 print(error_msg)
                 return ({"error": error_msg},)
             
-            # 转换 GPU 层数设置
-            if n_gpu_layers == "All (Auto)":
-                gpu_layers = -1  # 全部使用 GPU
-            elif n_gpu_layers == "CPU Only":
-                gpu_layers = 0   # 仅使用 CPU
-            else:  # Custom
-                gpu_layers = custom_gpu_layers
+            # 根据设备选项设置 n_gpu_layers
+            if device == "Auto":
+                # 自动检测：如果有 GPU 则全部使用，否则 CPU
+                try:
+                    import torch
+                    n_gpu_layers = -1 if torch.cuda.is_available() else 0
+                    print(f"🔍 Auto device: {'GPU' if n_gpu_layers == -1 else 'CPU'}")
+                except:
+                    n_gpu_layers = -1  # 默认尝试 GPU
+            elif device == "GPU":
+                n_gpu_layers = -1
+                print(f"🎮 Using GPU (all layers)")
+            else:  # CPU
+                n_gpu_layers = 0
+                print(f"💻 Using CPU only")
             
             config = {
                 "mode": "local",
                 "model_path": model_path,
                 "model_name": local_model,
                 "n_ctx": n_ctx,
-                "n_gpu_layers": gpu_layers,
+                "n_gpu_layers": n_gpu_layers,
                 "system_prompt": system_prompt
             }
             
             print(f"✅ Local model configured")
             print(f"   Path: {model_path}")
             print(f"   Context: {n_ctx}")
-            print(f"   GPU Layers: {n_gpu_layers}")
+            print(f"   Device: {device}")
             
         else:
             # 远程 API 模式
