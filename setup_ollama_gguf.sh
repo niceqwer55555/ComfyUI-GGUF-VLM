@@ -14,7 +14,8 @@
 #   ./setup_ollama_gguf.sh
 ################################################################################
 
-set -e  # 遇到错误立即退出
+# 注意：不使用 set -e，因为某些命令（如 pkill）可能返回非零但不是错误
+# 而是在关键步骤手动检查错误
 
 # 颜色定义
 RED='\033[0;31m'
@@ -195,13 +196,14 @@ print_success "Ollama 目录创建完成: $OLLAMA_DIR"
 ################################################################################
 print_header "停止现有服务"
 
-if pgrep -x "ollama" > /dev/null; then
+if pgrep -x "ollama" > /dev/null 2>&1; then
     print_info "停止现有 Ollama 服务..."
-    pkill -9 ollama || true
+    pkill -9 ollama 2>/dev/null || true
     sleep 2
+    print_success "现有服务已停止"
+else
+    print_info "没有运行中的 Ollama 服务"
 fi
-
-print_success "现有服务已停止"
 
 ################################################################################
 # 5. 启动 Ollama 服务
