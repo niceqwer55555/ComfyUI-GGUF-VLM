@@ -19,7 +19,7 @@ try:
     from utils.downloader import FileDownloader
     from models.text_models import TextModelConfig, TextModelPresets
 except ImportError as e:
-    print(f"[ComfyUI-GGUF-VisionLM] Import error in text_node: {e}")
+    print(f"[ComfyUI-GGUF-Fusion] Import error in text_node: {e}")
     # 尝试相对导入
     from ..core.model_loader import ModelLoader
     from ..core.inference_engine import InferenceEngine

@@ -25,7 +25,7 @@ try:
     from utils.device_optimizer import DeviceOptimizer
     from utils.mmproj_validator import MMProjValidator
 except ImportError as e:
-    print(f"[ComfyUI-GGUF-VisionLM] Import error in vision_node: {e}")
+    print(f"[ComfyUI-GGUF-Fusion] Import error in vision_node: {e}")
     # 尝试相对导入
     from ..core.model_loader import ModelLoader
     from ..core.inference_engine import InferenceEngine

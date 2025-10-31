@@ -1,6 +1,6 @@
 """
-ComfyUI-GGUF-VisionLM (Enhanced)
-Support for GGUF quantized Vision Language Models + Transformers Models
+ComfyUI-GGUF-Fusion (Enhanced)
+Support for GGUF quantized Vision Language Models + Transformers Models + Text Generation
 
 三模式支持：
 1. GGUF 模式：使用 llama-cpp-python，支持量化模型（Q8_0, Q4_K_M等）
@@ -130,7 +130,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **NEXA_DISPLAY,
 }
 
-print(f"📦 ComfyUI-GGUF-VisionLM (Enhanced) loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")
+print(f"📦 ComfyUI-GGUF-Fusion (Enhanced) loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")
 print(f"   🔹 GGUF Mode: Optimized quantized models")
 print(f"   🔹 Transformers Mode: Full HuggingFace models")
 print(f"   🔹 Nexa SDK Mode: Remote inference service")
