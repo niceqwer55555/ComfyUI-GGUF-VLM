@@ -50,10 +50,18 @@ class TransformersInferenceEngine:
         """
         try:
             from transformers import (
-                Qwen3VLForConditionalGeneration,
+                AutoModelForVision2Seq,
                 AutoProcessor,
                 BitsAndBytesConfig,
             )
+            
+            # 尝试导入 Qwen3VL 特定类（如果可用）
+            try:
+                from transformers import Qwen3VLForConditionalGeneration
+                use_qwen3vl = True
+            except ImportError:
+                use_qwen3vl = False
+                print("⚠️  Qwen3VLForConditionalGeneration not available, using AutoModelForVision2Seq")
             import comfy.model_management
             
             model_id = config.get('model_id')
@@ -136,7 +144,10 @@ class TransformersInferenceEngine:
             if quantization_config:
                 model_kwargs["quantization_config"] = quantization_config
             
-            self.model = Qwen3VLForConditionalGeneration.from_pretrained(
+            # 根据可用性选择模型类
+            ModelClass = Qwen3VLForConditionalGeneration if use_qwen3vl else AutoModelForVision2Seq
+            
+            self.model = ModelClass.from_pretrained(
                 model_checkpoint,
                 **model_kwargs
             )
