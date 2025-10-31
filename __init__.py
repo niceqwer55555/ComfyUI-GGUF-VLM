@@ -60,12 +60,12 @@ except Exception as e:
     VISION_NODES = {}
     VISION_DISPLAY = {}
 
-# 导入文本节点
+# 导入文本生成节点（新架构）
 try:
-    from .nodes.text_node import NODE_CLASS_MAPPINGS as TEXT_NODES, NODE_DISPLAY_NAME_MAPPINGS as TEXT_DISPLAY
-    print("✅ Text nodes loaded")
+    from .nodes.text_generation_nodes import NODE_CLASS_MAPPINGS as TEXT_NODES, NODE_DISPLAY_NAME_MAPPINGS as TEXT_DISPLAY
+    print("✅ Text generation nodes loaded (new architecture)")
 except Exception as e:
-    print(f"⚠️  Text nodes load failed: {e}")
+    print(f"⚠️  Text generation nodes load failed: {e}")
     TEXT_NODES = {}
     TEXT_DISPLAY = {}
 
@@ -105,26 +105,18 @@ except Exception as e:
     NEXA_NODES = {}
     NEXA_DISPLAY = {}
 
-# 导入统一文本节点（新增）
-try:
-    from .nodes.unified_text_node import NODE_CLASS_MAPPINGS as UNIFIED_NODES, NODE_DISPLAY_NAME_MAPPINGS as UNIFIED_DISPLAY
-    print("✅ Unified text nodes loaded")
-except Exception as e:
-    print(f"⚠️  Unified text nodes load failed: {e}")
-    UNIFIED_NODES = {}
-    UNIFIED_DISPLAY = {}
+# 旧的 unified_text_node 已被 text_generation_nodes 替代，不再加载
 
 # 合并所有节点映射
 NODE_CLASS_MAPPINGS = {
     **LEGACY_NODES,          # 旧版节点（向后兼容）
     **MANAGER_MAPPINGS,      # 模型管理器
     **VISION_NODES,          # GGUF 模式视觉节点
-    **TEXT_NODES,            # 文本节点
+    **TEXT_NODES,            # 文本生成节点（新架构：Local/Remote/Generation）
     **TRANSFORMERS_NODES,    # Transformers 模式视觉节点
     **MULTI_IMAGE_NODES,     # 多图像分析节点
     **PROMPT_NODES,          # 系统提示词配置节点
-    **NEXA_NODES,            # Nexa SDK 节点（新增）
-    **UNIFIED_NODES,         # 统一文本节点（新增）
+    **NEXA_NODES,            # Nexa SDK 节点
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -136,7 +128,6 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **MULTI_IMAGE_DISPLAY,
     **PROMPT_DISPLAY,
     **NEXA_DISPLAY,
-    **UNIFIED_DISPLAY,
 }
 
 print(f"📦 ComfyUI-GGUF-VisionLM (Enhanced) loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")

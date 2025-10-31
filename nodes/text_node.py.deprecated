@@ -428,7 +428,7 @@ class TextGenerationNode:
                 temperature=temperature,
                 top_p=top_p,
                 top_k=top_k,
-                repeat_penalty=repeat_penalty,
+                repeat_penalty=repetition_penalty,
                 stop=stop_sequences
             )
             
