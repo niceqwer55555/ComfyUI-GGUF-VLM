@@ -46,7 +46,7 @@ class GGUFModelManager:
     RETURN_TYPES = ("STRING",)
     RETURN_NAMES = ("result",)
     FUNCTION = "manage_models"
-    CATEGORY = "🤖 GGUF-VLM/Management"
+    CATEGORY = "🤖 GGUF-VLM/🛠️ Tools"
     OUTPUT_NODE = True
     
     def manage_models(self, action, repo_id, model_name="", model_file="", mmproj_file=""):

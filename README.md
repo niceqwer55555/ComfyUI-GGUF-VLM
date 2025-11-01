@@ -4,20 +4,57 @@ Complete GGUF model support for ComfyUI with local and Nexa SDK inference modes.
 
 ## 🌟 Features
 
-### Two Inference Modes
+### Two Core Capabilities
 
-1. **Text Generation (Local)** - Direct GGUF model loading using llama-cpp-python
-2. **Nexa SDK** - Managed models via Nexa SDK service
+1. **💬 Text Models** - Text-to-Text generation
+   - Qwen3, LLaMA3, DeepSeek-R1, Mistral, etc.
+   - Local GGUF models or Remote API services
+   
+2. **🖼️ Vision Models** - Image-Text-to-Text analysis
+   - Qwen2.5-VL, Qwen3-VL, LLaVA, MiniCPM-V, etc.
+   - Single image, multi-image comparison, video analysis
 
 ### Key Features
 
-- ✅ **Simple configuration** - Minimal parameters, maximum functionality
-- ✅ **Auto model detection** - Nexa SDK automatically lists downloaded models
-- ✅ **Thinking mode support** (DeepSeek-R1, Qwen3-Thinking)
-- ✅ **Stop sequences** - Prevent over-generation
-- ✅ **Paragraph merging** - Clean single-paragraph output
-- ✅ **Detailed logging** - Debug-friendly console output
-- ✅ **Device optimization** (CUDA, MPS, CPU)
+- ✅ **Unified interface** - Simple node structure by model capability
+- ✅ **Multiple backends** - GGUF (llama-cpp), Transformers, Remote API
+- ✅ **Auto model detection** - Smart model loading and compatibility
+- ✅ **Thinking mode support** - DeepSeek-R1, Qwen3-Thinking
+- ✅ **Multi-image analysis** - Compare up to 6 images simultaneously
+- ✅ **Device optimization** - CUDA, MPS, CPU with auto-detection
+
+## 🤖 Supported Models
+
+### 💬 Text Models (Text-to-Text)
+
+**Qwen Series:**
+- Qwen3, Qwen2.5, Qwen-Chat
+- Qwen3-Thinking (with thinking mode)
+
+**LLaMA Series:**
+- LLaMA-3.x, LLaMA-2
+- Mistral, Mixtral
+
+**Other Models:**
+- DeepSeek-R1 (with thinking mode)
+- Phi-3, Gemma, Yi
+
+### 🖼️ Vision Models (Image-Text-to-Text)
+
+**Qwen-VL Series:**
+- Qwen2.5-VL (recommended)
+- Qwen3-VL
+
+**LLaVA Series:**
+- LLaVA-1.5, LLaVA-1.6
+- LLaVA-NeXT
+
+**Other Vision Models:**
+- MiniCPM-V-2.6
+- Phi-3-Vision
+- InternVL
+
+> 💡 **Note**: Models must be in GGUF format for local inference, or accessible via Nexa/Ollama API for remote inference.
 
 ## 📦 Installation
 

@@ -111,7 +111,7 @@ class NexaModelSelector:
     RETURN_TYPES = ("NEXA_MODEL",)
     RETURN_NAMES = ("model_config",)
     FUNCTION = "select_model"
-    CATEGORY = "🤖 GGUF-VLM/Nexa"
+    CATEGORY = "🤖 GGUF-VLM/💬 Text Models/📥 Load Model"
     OUTPUT_NODE = True
     
     def select_model(
@@ -169,7 +169,7 @@ class NexaModelSelector:
         return (config,)
 
 
-class NexaTextGeneration:
+class NexaSDKTextGeneration:
     """Nexa SDK 文本生成节点"""
     
     @classmethod
@@ -260,7 +260,7 @@ class NexaTextGeneration:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("context", "thinking")
     FUNCTION = "generate"
-    CATEGORY = "🤖 GGUF-VLM/Nexa"
+    CATEGORY = "🤖 GGUF-VLM/💬 Text Models/✨ Generate"
     OUTPUT_NODE = True
     
     @staticmethod
@@ -468,7 +468,7 @@ class NexaServiceStatus:
     RETURN_TYPES = ("STRING", "STRING", "STRING")
     RETURN_NAMES = ("status", "remote_models", "local_models")
     FUNCTION = "check_status"
-    CATEGORY = "🤖 GGUF-VLM/Nexa"
+    CATEGORY = "🤖 GGUF-VLM/🛠️ Tools"
     OUTPUT_NODE = True
     
     def check_status(self, base_url: str, models_dir: str, refresh: bool = False):
@@ -517,12 +517,12 @@ class NexaServiceStatus:
 # 节点注册
 NODE_CLASS_MAPPINGS = {
     "NexaModelSelector": NexaModelSelector,
-    "NexaTextGeneration": NexaTextGeneration,
+    "NexaSDKTextGeneration": NexaSDKTextGeneration,
     "NexaServiceStatus": NexaServiceStatus,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "NexaModelSelector": "🤖 Nexa Model Selector",
-    "NexaTextGeneration": "🤖 Nexa Text Generation",
-    "NexaServiceStatus": "🤖 Nexa Service Status",
+    "NexaModelSelector": "🌐 Remote API Config (Nexa/Ollama)",
+    "NexaSDKTextGeneration": "🌐 Text Generation (Remote)",
+    "NexaServiceStatus": "📊 Service Status Check",
 }

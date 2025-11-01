@@ -132,11 +132,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     **NEXA_DISPLAY,
 }
 
-print(f"📦 ComfyUI-GGUF-VLM (Enhanced) loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")
-print(f"   🔹 GGUF Mode: Optimized quantized models")
-print(f"   🔹 Transformers Mode: Full HuggingFace models")
-print(f"   🔹 Nexa SDK Mode: Remote inference service")
-print(f"   🔹 Multi-Image: Up to 6 images analysis")
-print(f"   🔹 System Prompt: Configurable presets")
+print(f"📦 ComfyUI-GGUF-VLM loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")
+print(f"   💬 Text Models: Text-to-Text generation (Qwen3, LLaMA3, etc.)")
+print(f"   🖼️ Vision Models: Image-Text-to-Text analysis (Qwen2.5-VL, LLaVA, etc.)")
+print(f"   🛠️ Tools: System prompts, model management, service status")
+print(f"")
+print(f"   🔹 Local: GGUF models via llama-cpp-python")
+print(f"   🔹 Remote: API services (Nexa/Ollama)")
+print(f"   🔹 Transformers: HuggingFace models")
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']

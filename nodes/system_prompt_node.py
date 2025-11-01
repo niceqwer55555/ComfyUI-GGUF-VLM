@@ -57,7 +57,7 @@ class SystemPromptConfig:
     RETURN_TYPES = ("STRING", "BOOLEAN")
     RETURN_NAMES = ("system_prompt", "enabled")
     FUNCTION = "configure"
-    CATEGORY = "🤖 GGUF-VLM/Config"
+    CATEGORY = "🤖 GGUF-VLM/🛠️ Tools"
     
     def configure(self, preset, custom_prompt, enable_system_prompt=True):
         """

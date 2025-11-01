@@ -87,7 +87,7 @@ class MultiImageAnalysis:
     RETURN_TYPES = TEXT_OUTPUT["types"]
     RETURN_NAMES = TEXT_OUTPUT["names"]
     FUNCTION = "analyze_images"
-    CATEGORY = "🤖 GGUF-VLM/Multi-Image"
+    CATEGORY = "🤖 GGUF-VLM/🖼️ Vision Models/🔍 Analyze"
     OUTPUT_NODE = True
     
     def analyze_images(
@@ -270,7 +270,7 @@ class MultiImageComparison:
     RETURN_TYPES = TEXT_OUTPUT["types"]
     RETURN_NAMES = TEXT_OUTPUT["names"]
     FUNCTION = "compare_images"
-    CATEGORY = "🤖 GGUF-VLM/Multi-Image"
+    CATEGORY = "🤖 GGUF-VLM/🖼️ Vision Models/🔍 Analyze"
     OUTPUT_NODE = True
     
     # 预设提示词
@@ -339,6 +339,6 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "MultiImageAnalysis": "🤖 Multi-Image Analysis",
-    "MultiImageComparison": "🤖 Multi-Image Comparison",
+    "MultiImageAnalysis": "🖼️ Multi-Image Analysis",
+    "MultiImageComparison": "🖼️ Multi-Image Comparison",
 }

@@ -119,7 +119,7 @@ class TextModelLoader:
     RETURN_TYPES = ("TEXT_MODEL",)
     RETURN_NAMES = ("model",)
     FUNCTION = "load_model"
-    CATEGORY = "🤖 GGUF-VLM/Text"
+    CATEGORY = "🤖 GGUF-VLM/💬 Text Models/📥 Load Model"
     
     def load_model(self, model, n_ctx=8192, device="Auto", system_prompt=""):
         """加载文本模型"""
@@ -265,7 +265,7 @@ class TextGenerationNode:
     RETURN_TYPES = ("STRING", "STRING")
     RETURN_NAMES = ("context", "thinking")
     FUNCTION = "generate"
-    CATEGORY = "🤖 GGUF-VLM/Text"
+    CATEGORY = "🤖 GGUF-VLM/💬 Text Models/✨ Generate"
     OUTPUT_NODE = True
     
     @staticmethod
@@ -487,6 +487,6 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "TextModelLoader": "🤖 Text Model Loader",
-    "TextGenerationNode": "🤖 Text Generation",
+    "TextModelLoader": "💬 Text Model Loader (Local)",
+    "TextGenerationNode": "💬 Text Generation (Local)",
 }
