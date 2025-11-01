@@ -94,12 +94,13 @@ class RegistryManager:
         """
         return self.get_all_models(business_type=business_type)
     
-    def get_downloadable_models(self, business_type: str = None) -> List[Tuple[str, Dict]]:
+    def get_downloadable_models(self, business_type: str = None, model_loader=None) -> List[Tuple[str, Dict]]:
         """
         获取可下载的模型列表（展开所有变体）
         
         Args:
             business_type: 业务类型过滤
+            model_loader: ModelLoader 实例，用于检查模型是否已下载
         
         Returns:
             [(display_name, model_info), ...] 列表
@@ -107,19 +108,39 @@ class RegistryManager:
         downloadable = []
         models = self.get_all_models(business_type)
         
+        # 获取本地已有模型列表
+        local_models = []
+        if model_loader:
+            try:
+                local_models = [m.lower() for m in model_loader.list_models()]
+            except:
+                pass
+        
         for model in models:
             for variant in model['variants']:
-                display_name = f"[⬇️ {model['series']}] {variant['file']}"
+                filename = variant['file']
+                
+                # 检查模型是否已下载
+                is_downloaded = filename.lower() in local_models
+                
+                # 根据下载状态显示不同的前缀
+                if is_downloaded:
+                    prefix = "✓"  # 已下载
+                else:
+                    prefix = "✗"  # 未下载
+                
+                display_name = f"{prefix} {filename}"
                 
                 info = {
-                    'file': variant['file'],
+                    'file': filename,
                     'repo': model['repo'],
                     'mmproj': model['mmproj'],
                     'size': variant.get('size', 'Unknown'),
                     'recommended': variant.get('recommended', False),
                     'series': model['series'],
                     'model_name': model['model_name'],
-                    'business_type': model['business_type']
+                    'business_type': model['business_type'],
+                    'is_downloaded': is_downloaded
                 }
                 
                 downloadable.append((display_name, info))
@@ -194,12 +215,13 @@ class RegistryManager:
         获取模型下载信息
         
         Args:
-            filename: 模型文件名
+            filename: 模型文件名（可能带 ✓ 或 ✗ 前缀）
         
         Returns:
             下载信息字典
         """
-        clean_filename = re.sub(r'^\[⬇️.*?\]\s*', '', filename)
+        # 清理前缀：✓ 或 ✗
+        clean_filename = re.sub(r'^[✓✗]\s*', '', filename)
         
         model_info = self.find_model_by_filename(clean_filename)
         if not model_info:

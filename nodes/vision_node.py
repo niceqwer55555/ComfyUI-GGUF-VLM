@@ -74,9 +74,9 @@ class VisionModelLoader:
             if model_info is None or model_info.get('business_type') in ['image_analysis', 'video_analysis']:
                 local_models.append(model_file)
         
-        # 获取不同类型的可下载模型
-        image_models = registry.get_downloadable_models(business_type='image_analysis')
-        video_models = registry.get_downloadable_models(business_type='video_analysis')
+        # 获取不同类型的可下载模型（传递 loader 以检查下载状态）
+        image_models = registry.get_downloadable_models(business_type='image_analysis', model_loader=loader)
+        video_models = registry.get_downloadable_models(business_type='video_analysis', model_loader=loader)
         
         # 添加类型标签
         categorized_models = []
@@ -174,8 +174,8 @@ class VisionModelLoader:
         
         print(f"📦 加载模型: {model}")
         
-        # 检查是否需要下载
-        if model.startswith("[⬇️"):
+        # 检查是否需要下载（✗ 表示未下载）
+        if model.startswith("✗"):
             print(f"📥 Model needs to be downloaded: {model}")
             download_info = registry.get_model_download_info(model)
             
@@ -210,6 +210,10 @@ class VisionModelLoader:
                 cache.clear("new model downloaded")
             else:
                 raise ValueError(f"Cannot find download info for: {model}")
+        elif model.startswith("✓"):
+            # 已下载的模型，移除前缀
+            import re
+            model = re.sub(r'^✓\s*', '', model)
         
         # 查找模型路径
         model_path = loader.find_model(model)

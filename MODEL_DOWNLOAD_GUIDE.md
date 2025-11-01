@@ -20,12 +20,16 @@
 
 1. **添加节点**: `💬 Text Model Loader (Local)`
 
-2. **在 model 下拉菜单中**，你会看到带 `[⬇️]` 前缀的可下载模型：
+2. **在 model 下拉菜单中**，你会看到模型列表：
    ```
-   [⬇️ Abliterated Models] Huihui-Qwen3-8B-abliterated-v2.Q8_0.gguf
-   [⬇️ Abliterated Models] Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf
-   [⬇️ Abliterated Models] gemma-3-4b-abliterated.Q8_0.gguf
+   ✗ Huihui-Qwen3-8B-abliterated-v2.Q8_0.gguf          (未下载)
+   ✗ Huihui-Qwen3-4B-Instruct-2507-abliterated.Q8_0.gguf
+   ✗ gemma-3-4b-abliterated.Q8_0.gguf
    ```
+   
+   **说明**：
+   - `✗` = 未下载，选择后会自动下载
+   - `✓` = 已下载，可直接使用
 
 3. **选择任意模型** → **运行工作流** → **自动下载到** `ComfyUI/models/LLM/`
 
@@ -95,4 +99,7 @@ wget https://huggingface.co/mradermacher/gemma-3-4b-abliterated-GGUF/resolve/mai
 
 ---
 
-💡 **提示**: 在节点下拉菜单中选择带 `[⬇️]` 前缀的模型即可自动下载！
+💡 **提示**: 
+- `✗` 开头的模型：未下载，选择后自动下载
+- `✓` 开头的模型：已下载，可直接使用
+- 下载完成后，模型前缀会自动从 `✗` 变为 `✓`
