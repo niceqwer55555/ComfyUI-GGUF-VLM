@@ -6,7 +6,7 @@
 
 ```bash
 # 下载脚本
-wget https://raw.githubusercontent.com/weekii/ComfyUI-GGUF-FX/main/setup_llama_cpp_cuda.sh
+wget https://raw.githubusercontent.com/walke2019/ComfyUI-GGUF-VLM/main/setup_llama_cpp_cuda.sh
 
 # 或者如果你已经有脚本
 chmod +x setup_llama_cpp_cuda.sh
@@ -67,7 +67,7 @@ chmod +x setup_llama_cpp_cuda.sh
 ssh -p PORT root@IP
 
 # 2. 下载脚本
-wget https://raw.githubusercontent.com/weekii/ComfyUI-GGUF-FX/main/setup_llama_cpp_cuda.sh
+wget https://raw.githubusercontent.com/walke2019/ComfyUI-GGUF-VLM/main/setup_llama_cpp_cuda.sh
 
 # 3. 运行
 chmod +x setup_llama_cpp_cuda.sh
@@ -317,14 +317,14 @@ pip search llama-cpp-python
 
 ### 问题反馈
 
-- GitHub Issues: https://github.com/weekii/ComfyUI-GGUF-FX/issues
+- GitHub Issues: https://github.com/walke2019/ComfyUI-GGUF-VLM/issues
 - 脚本问题请附上 `/tmp/llama_cpp_install.log`
 
 ### 相关资源
 
 - llama-cpp-python 官方文档: https://llama-cpp-python.readthedocs.io/
 - llama.cpp 项目: https://github.com/ggerganov/llama.cpp
-- ComfyUI-GGUF-FX: https://github.com/weekii/ComfyUI-GGUF-FX
+- ComfyUI-GGUF-VLM: https://github.com/walke2019/ComfyUI-GGUF-VLM
 
 ## 许可证
 
@@ -334,5 +334,5 @@ pip search llama-cpp-python
 
 **版本**: 1.0  
 **日期**: 2025-10-29  
-**作者**: ComfyUI-GGUF-FX  
+**作者**: Contributors  
 **测试环境**: Vast.ai H100, A100, RTX 4090

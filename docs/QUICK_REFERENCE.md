@@ -3,7 +3,7 @@
 ## 🚀 一键安装
 
 ```bash
-wget https://raw.githubusercontent.com/weekii/ComfyUI-GGUF-FX/main/setup_llama_cpp_cuda.sh
+wget https://raw.githubusercontent.com/walke2019/ComfyUI-GGUF-VLM/main/setup_llama_cpp_cuda.sh
 chmod +x setup_llama_cpp_cuda.sh
 ./setup_llama_cpp_cuda.sh
 ```
@@ -73,7 +73,7 @@ pip install 'numpy<2.0,>=1.20' --force-reinstall
 
 ## 📞 支持
 
-- GitHub: https://github.com/weekii/ComfyUI-GGUF-FX
+- GitHub: https://github.com/walke2019/ComfyUI-GGUF-VLM
 - 文档: https://llama-cpp-python.readthedocs.io/
 
 ---

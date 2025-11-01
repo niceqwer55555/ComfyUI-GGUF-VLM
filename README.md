@@ -25,8 +25,8 @@ Complete GGUF model support for ComfyUI with local and Nexa SDK inference modes.
 
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/weekii/ComfyUI-GGUF-FX.git
-cd ComfyUI-GGUF-FX
+git clone https://github.com/walke2019/ComfyUI-GGUF-VLM.git
+cd ComfyUI-GGUF-VLM
 pip install -r requirements.txt
 ```
 
@@ -381,26 +381,7 @@ Contributions are welcome! Please:
 
 MIT License - see LICENSE file for details
 
-## 🔗 Links
-
-- **GitHub**: https://github.com/weekii/ComfyUI-GGUF-FX
 - **Nexa SDK**: https://github.com/NexaAI/nexa-sdk
 - **Nexa SDK Guide**: [NEXA_SDK_GUIDE.md](NEXA_SDK_GUIDE.md)
 - **ComfyUI**: https://github.com/comfyanonymous/ComfyUI
 
-## 👤 Author
-
-**weekii** <weekii2024@gmail.com>
-
-## 🙏 Acknowledgments
-
-- ComfyUI team for the amazing framework
-- Nexa AI for the SDK
-- HuggingFace for model hosting
-- llama.cpp team for GGUF support
-
----
-
-**Status**: ✅ Production Ready  
-**Version**: 2.2  
-**Last Updated**: 2025-10-29

@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/yourusername/ComfyUI-qwenVL"
+Repository = "https://github.com/walke2019/ComfyUI-GGUF-VLM"
 
 [tool.comfy]
 DisplayName = "Qwen2.5-VL GGUF Nodes"
