@@ -99,7 +99,10 @@ class TransformersInferenceEngine:
                         break
             
             if needs_download:
-                from utils.download_manager import get_download_manager
+                try:
+                    from utils.download_manager import get_download_manager
+                except ImportError:
+                    from ...utils.download_manager import get_download_manager
                 
                 download_manager = get_download_manager()
                 
