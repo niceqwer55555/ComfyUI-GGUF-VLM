@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-gguf-vlm"
 description = "ComfyUI multi-modal inference plugin focused on Qwen-VL models with GGUF, Transformers, and Ollama support"
-version = "2.3.0"
+version = "1.0.0"
 license = {text = "MIT"}
 dependencies = [
     "llama-cpp-python>=0.2.0",
