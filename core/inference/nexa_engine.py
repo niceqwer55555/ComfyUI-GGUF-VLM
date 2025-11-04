@@ -13,7 +13,7 @@ from typing import Dict, List, Optional, Any
 class NexaInferenceEngine:
     """Nexa SDK 推理引擎（通过 HTTP API）"""
     
-    def __init__(self, base_url: str = "http://127.0.0.1:11434", models_dir: Optional[str] = None):
+    def __init__(self, base_url: str = "http://127.0.0.1:8080", models_dir: Optional[str] = None):
         """
         初始化 Nexa 推理引擎
         
@@ -233,8 +233,10 @@ class NexaInferenceEngine:
                     print(f"✅ Found {len(self._available_models)} models in Nexa SDK service")
                 
             except Exception as e:
-                if not force_refresh:
-                    print(f"❌ Failed to fetch models from Nexa SDK: {e}")
+                # 只在强制刷新时打印错误（用户主动刷新）
+                # 避免在节点初始化时产生误导性错误信息
+                if force_refresh:
+                    print(f"❌ Failed to fetch models: {e}")
                 self._available_models = []
         
         return self._available_models
@@ -533,7 +535,7 @@ class NexaInferenceEngine:
 _global_nexa_engines = {}
 
 
-def get_nexa_engine(base_url: str = "http://127.0.0.1:11434", models_dir: Optional[str] = None) -> NexaInferenceEngine:
+def get_nexa_engine(base_url: str = "http://127.0.0.1:8080", models_dir: Optional[str] = None) -> NexaInferenceEngine:
     """
     获取 Nexa 推理引擎实例（支持多个不同的服务地址）
     

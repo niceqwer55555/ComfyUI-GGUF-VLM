@@ -31,7 +31,6 @@ class InferenceEngine:
             
             # 检查是否已加载
             if model_path in self.loaded_models:
-                print(f"✅ Model already loaded: {model_path}")
                 return True
             
             # 加载模型
@@ -63,7 +62,6 @@ class InferenceEngine:
                 )
             
             self.loaded_models[model_path] = llm
-            print(f"✅ Model loaded successfully: {model_path}")
             return True
             
         except Exception as e:
@@ -81,7 +79,6 @@ class InferenceEngine:
             del self.loaded_models[model_path]
             if model_path in self.model_contexts:
                 del self.model_contexts[model_path]
-            print(f"🗑️  Model unloaded: {model_path}")
     
     def generate_text(
         self,
@@ -192,4 +189,3 @@ class InferenceEngine:
         """清除所有已加载的模型"""
         self.loaded_models.clear()
         self.model_contexts.clear()
-        print("🗑️  All models unloaded")

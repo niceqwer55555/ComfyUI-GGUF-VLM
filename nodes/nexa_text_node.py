@@ -88,13 +88,10 @@ class RemoteAPIConfig:
     """远程 API 配置节点（Nexa/Ollama）"""
     
     @staticmethod
-    def get_available_models(base_url="http://127.0.0.1:11434", api_type="nexa"):
+    def get_available_models(base_url="http://127.0.0.1:11434", api_type="ollama"):
         """获取可用模型列表"""
         try:
-            # 尝试多个常用端口
-            ports_to_try = [40054, 11434, 11435]
-            
-            # 如果 base_url 中指定了端口，优先使用
+            # 如果 base_url 中指定了端口，优先使用用户指定的
             if ':' in base_url.split('//')[-1]:
                 try:
                     engine = get_nexa_engine(base_url)
@@ -104,6 +101,12 @@ class RemoteAPIConfig:
                             return models
                 except:
                     pass
+            
+            # 根据 API 类型选择端口扫描顺序
+            if api_type.lower() == "ollama":
+                ports_to_try = [11434]  # Ollama 官方默认端口
+            else:  # Nexa SDK
+                ports_to_try = [8080]  # Nexa SDK 官方默认端口
             
             # 尝试常用端口
             for port in ports_to_try:
@@ -123,23 +126,20 @@ class RemoteAPIConfig:
     
     @classmethod
     def INPUT_TYPES(cls):
-        # 获取可用模型列表（会尝试多个端口）
-        available_models = cls.get_available_models()
-        
         return {
             "required": {
                 "base_url": ("STRING", {
                     "default": "http://127.0.0.1:11434",
                     "multiline": False,
-                    "tooltip": "API 服务地址（例如：http://127.0.0.1:40054）"
+                    "tooltip": "API 服务地址（Ollama: 11434, Nexa: 8080）"
                 }),
                 "api_type": (["Nexa SDK", "Ollama"], {
                     "default": "Ollama",
                     "tooltip": "API 类型"
                 }),
-                "model": (available_models, {
-                    "default": available_models[0] if available_models else "(请点击刷新按钮)",
-                    "tooltip": "选择模型（点击刷新按钮更新列表）"
+                # 使用空元组表示动态列表，由前端 JavaScript 控制
+                "model": ((), {
+                    "tooltip": "选择模型（点击 🔄 Refresh Models 按钮更新列表）"
                 }),
             },
             "optional": {
@@ -151,10 +151,11 @@ class RemoteAPIConfig:
             }
         }
     
-    RETURN_TYPES = ("TEXT_MODEL",)
-    RETURN_NAMES = ("model_config",)
+    RETURN_TYPES = ("TEXT_MODEL", "STRING")
+    RETURN_NAMES = ("model_config", "status_info")
     FUNCTION = "configure_api"
     CATEGORY = "🤖 GGUF-VLM/💬 Text Models"
+    OUTPUT_NODE = True
     
     def configure_api(
         self, 
@@ -164,6 +165,10 @@ class RemoteAPIConfig:
         system_prompt: str = ""
     ):
         """配置远程 API"""
+        
+        print(f"\n{'='*80}")
+        print(f" 🌐 Remote API Config (Nexa/Ollama)")
+        print(f"{'='*80}")
         
         # 映射 API 类型
         api_type_map = {
@@ -176,29 +181,44 @@ class RemoteAPIConfig:
         engine = get_nexa_engine(base_url)
         
         # 检查服务是否可用
+        print(f"🔍 检测服务连通性...")
+        print(f"   URL: {base_url}")
+        print(f"   Type: {api_type}")
+        
         is_available = engine.is_service_available()
         
         if not is_available:
-            error_msg = f"⚠️  {api_type} service is not available at {base_url}"
+            error_msg = f"❌ {api_type} 服务不可用"
+            status_info = f"❌ 连接失败\n"
+            status_info += f"URL: {base_url}\n"
+            status_info += f"请确保服务正在运行\n"
+            status_info += f"\n提示：\n"
+            status_info += f"- Ollama: 运行 'ollama serve'\n"
+            status_info += f"- Nexa SDK: 运行 'nexa serve'"
+            
             print(error_msg)
-            print(f"   Please make sure the service is running.")
+            print(f"   URL: {base_url}")
+            print(f"   请确保服务正在运行")
+            print(f"{'='*80}\n")
             
             config = {
                 "mode": "remote",
                 "base_url": base_url,
                 "api_type": api_key,
-                "model_name": model,
+                "model_name": "",
                 "system_prompt": system_prompt,
                 "service_available": False,
+                "available_models": [],
                 "error": error_msg
             }
-            return (config,)
+            return (config, status_info)
         
         # 获取可用模型
+        print(f"📋 获取模型列表...")
         available_models = engine.get_available_models(force_refresh=False)
         
         # 确定使用的模型
-        if model and model.strip() and not model.startswith("("):
+        if model and model.strip() and not model.startswith("(") and not model.startswith("❌") and not model.startswith("⚠️"):
             # 用户选择了有效的模型
             selected_model = model.strip()
             print(f"   使用选择的模型: {selected_model}")
@@ -208,7 +228,36 @@ class RemoteAPIConfig:
             print(f"   自动选择模型: {selected_model}")
         else:
             selected_model = ""
-            print(f"   ⚠️  未找到可用模型，请点击刷新按钮")
+            print(f"   ⚠️  未找到可用模型，请点击 🔄 Refresh Models 按钮")
+        
+        if not available_models or not selected_model:
+            status_info = f"⚠️ 服务已连接，但未找到模型\n"
+            status_info += f"URL: {base_url}\n"
+            status_info += f"可用模型: {len(available_models) if available_models else 0}\n"
+            status_info += f"\n请点击 🔄 Refresh Models 按钮刷新模型列表"
+            
+            config = {
+                "mode": "remote",
+                "base_url": base_url,
+                "api_type": api_key,
+                "model_name": selected_model,
+                "system_prompt": system_prompt,
+                "service_available": True,
+                "available_models": available_models or []
+            }
+            return (config, status_info)
+        
+        # 构建状态信息
+        status_info = f"✅ 连接成功\n"
+        status_info += f"URL: {base_url}\n"
+        status_info += f"类型: {api_type}\n"
+        status_info += f"可用模型: {len(available_models)}\n"
+        status_info += f"默认模型: {selected_model}\n"
+        status_info += f"\n模型列表:\n"
+        for i, model in enumerate(available_models[:10], 1):
+            status_info += f"  {i}. {model}\n"
+        if len(available_models) > 10:
+            status_info += f"  ... 还有 {len(available_models) - 10} 个模型"
         
         # 创建配置（使用 TEXT_MODEL 格式，兼容 TextGeneration 节点）
         config = {
@@ -221,12 +270,19 @@ class RemoteAPIConfig:
             "available_models": available_models
         }
         
-        print(f"✅ {api_type} configured")
-        print(f"   Service URL: {base_url}")
-        print(f"   Model: {selected_model}")
-        print(f"   Available models: {len(available_models)}")
+        print(f"✅ {api_type} 配置成功")
+        print(f"   URL: {base_url}")
+        print(f"   默认模型: {selected_model}")
+        print(f"   可用模型数: {len(available_models)}")
+        if available_models:
+            print(f"   模型列表:")
+            for i, model in enumerate(available_models[:5], 1):
+                print(f"      {i}. {model}")
+            if len(available_models) > 5:
+                print(f"      ... 还有 {len(available_models) - 5} 个模型")
+        print(f"{'='*80}\n")
         
-        return (config,)
+        return (config, status_info)
 
 
 # RemoteTextGeneration 节点已移除
@@ -250,8 +306,8 @@ class NexaServiceStatus:
         return {
             "required": {
                 "base_url": ("STRING", {
-                    "default": "http://127.0.0.1:11434",
-                    "tooltip": "Nexa SDK 服务地址（可配置）"
+                    "default": "http://127.0.0.1:8080",
+                    "tooltip": "Nexa SDK 服务地址（默认: 8080）"
                 }),
                 "models_dir": ("STRING", {
                     "default": default_models_dir,

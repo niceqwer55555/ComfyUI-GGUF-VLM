@@ -84,7 +84,6 @@ class TransformersInferenceEngine:
                 use_qwen3vl = True
             except ImportError:
                 use_qwen3vl = False
-                print("⚠️  Qwen3VLForConditionalGeneration not available, using AutoModelForVision2Seq")
             import comfy.model_management
             
             model_id = config.get('model_id')
@@ -95,7 +94,6 @@ class TransformersInferenceEngine:
                 self.current_config == config and
                 self.model is not None and 
                 self.processor is not None):
-                print(f"✅ Model already loaded: {model_name}")
                 return True
             
             # 清理旧模型
@@ -118,7 +116,6 @@ class TransformersInferenceEngine:
                 for key_file in key_files:
                     if not os.path.exists(os.path.join(model_checkpoint, key_file)):
                         needs_download = True
-                        print(f"⚠️ Missing key file: {key_file}, will re-download")
                         break
             
             if needs_download:
@@ -145,7 +142,6 @@ class TransformersInferenceEngine:
                     raise RuntimeError(f"Failed to download model: {model_id}")
             
             # 加载 Processor（Qwen3-VL 不需要 min_pixels/max_pixels 参数）
-            print(f"📦 Loading processor from: {model_checkpoint}")
             self.processor = AutoProcessor.from_pretrained(model_checkpoint)
             
             # 配置量化
@@ -154,10 +150,8 @@ class TransformersInferenceEngine:
             
             if quantization == '4bit':
                 quantization_config = BitsAndBytesConfig(load_in_4bit=True)
-                print("🔧 Using 4-bit quantization")
             elif quantization == '8bit':
                 quantization_config = BitsAndBytesConfig(load_in_8bit=True)
-                print("🔧 Using 8-bit quantization")
             
             # 确定数据类型
             device = comfy.model_management.get_torch_device()
@@ -168,12 +162,7 @@ class TransformersInferenceEngine:
             dtype = torch.bfloat16 if bf16_support else torch.float16
             
             # 加载模型
-            print(f"📦 Loading model: {model_name}")
             attention = config.get('attention', 'sdpa')
-            
-            # Qwen3-VL 推荐使用 flash_attention_2
-            if attention == 'flash_attention_2':
-                print("⚡ Using Flash Attention 2 (recommended for Qwen3-VL)")
             
             model_kwargs = {
                 "dtype": dtype,
@@ -198,12 +187,7 @@ class TransformersInferenceEngine:
             self.current_model_id = model_id
             self.current_config = config.copy()
             
-            print(f"✅ Model loaded successfully: {model_name}")
-            print(f"   Location: {model_checkpoint}")
-            print(f"   Device: {device}")
-            print(f"   Dtype: {dtype}")
-            print(f"   Attention: {attention}")
-            print(f"   Quantization: {quantization}")
+            print(f"✅ Model loaded: {model_name}")
             
             return True
             
@@ -299,8 +283,6 @@ class TransformersInferenceEngine:
                 
                 # 移除 None 值
                 generation_config = {k: v for k, v in generation_config.items() if v is not None}
-                
-                print(f"🔍 Inference config: temp={temperature}, max_tokens={max_new_tokens}, top_p={top_p}, rep_penalty={repetition_penalty}")
                 
                 # 生成
                 generated_ids = self.model.generate(**model_inputs, **generation_config)

@@ -58,13 +58,9 @@ class DownloadManager:
         
         while retry_count < self.max_retries:
             try:
-                print(f"\n{'='*60}")
                 if retry_count > 0:
                     print(f"🔄 Retry {retry_count}/{self.max_retries}")
                 print(f"📥 Downloading: {filename}")
-                print(f"📦 From: {repo_id}")
-                print(f"📁 To: {dest_dir}")
-                print(f"{'='*60}\n")
                 
                 # 确保目标目录存在
                 os.makedirs(dest_dir, exist_ok=True)
@@ -78,10 +74,7 @@ class DownloadManager:
                     resume_download=resume,
                 )
                 
-                print(f"\n{'='*60}")
                 print(f"✅ Downloaded: {filename}")
-                print(f"{'='*60}\n")
-                
                 return downloaded_path
                 
             except Exception as e:
@@ -126,15 +119,9 @@ class DownloadManager:
         
         while retry_count < self.max_retries:
             try:
-                print(f"\n{'='*80}")
                 if retry_count > 0:
                     print(f"🔄 Retry {retry_count}/{self.max_retries}")
-                print(f"📥 [GGUF-VLM] Downloading Transformers Model")
-                print(f"📦 Repository: {repo_id}")
-                print(f"📁 Destination: {local_dir}")
-                print(f"🚫 Excluding: {', '.join(ignore_patterns)}")
-                print(f"⏳ Please wait, this may take several minutes...")
-                print(f"{'='*80}\n")
+                print(f"📥 [GGUF-VLM] Downloading model from: {repo_id}")
                 
                 # 使用 tqdm_class=None 禁用内部进度条，我们自己显示状态
                 try:
@@ -150,15 +137,11 @@ class DownloadManager:
                 except Exception as download_error:
                     # 如果 snapshot_download 失败，尝试使用 Git LFS
                     print(f"\n⚠️ [GGUF-VLM] Standard download failed, trying Git LFS...")
-                    print(f"Error: {download_error}")
                     
                     if not self._download_with_git_lfs(repo_id, local_dir, ignore_patterns):
                         raise download_error
                 
-                print(f"\n{'='*80}")
                 print("✅ [GGUF-VLM] Model downloaded successfully!")
-                print(f"📁 Location: {local_dir}")
-                print(f"{'='*80}\n")
                 
                 return True
                 
@@ -202,13 +185,9 @@ class DownloadManager:
                 print("❌ [GGUF-VLM] Git LFS not installed")
                 return False
             
-            print("✓ [GGUF-VLM] Using Git LFS for large files")
-            
             # 构建仓库 URL
             hf_endpoint = os.environ.get('HF_ENDPOINT', 'https://huggingface.co')
             repo_url = f"{hf_endpoint}/{repo_id}"
-            
-            print(f"🔗 Cloning from: {repo_url}")
             
             # Clone 仓库
             subprocess.run(['git', 'clone', repo_url, local_dir], 
@@ -218,13 +197,11 @@ class DownloadManager:
             os.chdir(local_dir)
             
             # 拉取 LFS 文件
-            print("📥 Pulling LFS files...")
             subprocess.run(['git', 'lfs', 'pull', '--include=*.safetensors'], 
                           check=True, timeout=3600)
             
             # 删除不需要的文件
             if ignore_patterns:
-                print("🧹 Cleaning up excluded files...")
                 for pattern in ignore_patterns:
                     if '*' in pattern:
                         # 使用 glob 模式删除
@@ -243,7 +220,6 @@ class DownloadManager:
             if os.path.exists(git_dir):
                 shutil.rmtree(git_dir)
             
-            print("✅ [GGUF-VLM] Git LFS download completed")
             return True
             
         except subprocess.TimeoutExpired:
@@ -305,7 +281,6 @@ class DownloadManager:
                 print(f"⚠️ Low disk space: {free_gb:.2f} GB available, {required_gb:.2f} GB required")
                 return False
             
-            print(f"✓ Disk space OK: {free_gb:.2f} GB available")
             return True
             
         except Exception as e:

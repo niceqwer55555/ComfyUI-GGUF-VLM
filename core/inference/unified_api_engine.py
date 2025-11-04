@@ -74,9 +74,6 @@ class UnifiedAPIEngine:
                 else:
                     self._available_models = []
                 
-                if not force_refresh:
-                    print(f"✅ Found {len(self._available_models)} models from {self.api_type} service")
-                
             except Exception as e:
                 if not force_refresh:
                     print(f"❌ Failed to fetch models: {e}")
@@ -133,13 +130,6 @@ class UnifiedAPIEngine:
         
         # 添加其他参数
         payload.update(kwargs)
-        
-        # 打印调试信息
-        print(f"🔍 API Request:")
-        print(f"   Type: {self.api_type}")
-        print(f"   Endpoint: {self.chat_endpoint}")
-        print(f"   Model: {model}")
-        print(f"   Messages: {len(messages)} messages")
         
         try:
             response = requests.post(

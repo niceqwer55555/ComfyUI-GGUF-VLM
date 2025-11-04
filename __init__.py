@@ -140,14 +140,13 @@ NODE_DISPLAY_NAME_MAPPINGS = {
 # 注册 web 目录（前端扩展）
 WEB_DIRECTORY = "./web"
 
+# 注册 API 路由（后端端点）
+try:
+    from . import api_routes
+    print("✅ API routes registered")
+except Exception as e:
+    print(f"⚠️  API routes registration failed: {e}")
+
 print(f"📦 ComfyUI-GGUF-VLM loaded: {len(NODE_CLASS_MAPPINGS)} nodes available")
-print(f"   💬 Text Models: Text-to-Text generation (Qwen3, LLaMA3, etc.)")
-print(f"   🖼️ Vision Models: Image-Text-to-Text analysis (Qwen2.5-VL, LLaVA, etc.)")
-print(f"   🛠️ Tools: System prompts, model management, service status")
-print(f"")
-print(f"   🔹 Local: GGUF models via llama-cpp-python")
-print(f"   🔹 Remote: API services (Nexa/Ollama)")
-print(f"   🔹 Transformers: HuggingFace models")
-print(f"   🎨 Frontend: Web extensions loaded from {WEB_DIRECTORY}")
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS', 'WEB_DIRECTORY']

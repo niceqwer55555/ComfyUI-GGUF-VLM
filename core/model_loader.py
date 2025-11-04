@@ -89,11 +89,6 @@ class ModelLoader:
         Returns:
             {filename: full_path} 字典
         """
-        if log_paths:
-            print("🔍 Scanning for GGUF models in:")
-            for path in self.model_dirs:
-                print(f"   - {path} (exists: {os.path.exists(path)})")
-        
         models = {}
         
         for base_dir in self.model_dirs:

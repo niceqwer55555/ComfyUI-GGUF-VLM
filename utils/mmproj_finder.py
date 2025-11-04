@@ -117,9 +117,6 @@ class MMProjFinder:
         # 生成所有可能的 mmproj 文件名
         possible_names = self._generate_possible_names(model_filename)
         
-        print(f"🔍 Searching for mmproj file for: {model_filename}")
-        print(f"   Trying {len(possible_names)} possible patterns...")
-        
         # 在所有目录中搜索
         for search_dir in search_paths:
             if not os.path.exists(search_dir):
@@ -128,7 +125,6 @@ class MMProjFinder:
             for possible_name in possible_names:
                 mmproj_path = os.path.join(search_dir, possible_name)
                 if os.path.exists(mmproj_path):
-                    print(f"✅ Found mmproj: {possible_name}")
                     return mmproj_path
         
         return None

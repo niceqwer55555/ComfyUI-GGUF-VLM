@@ -127,7 +127,7 @@ class RemoteTextModelSelector:
     def get_ollama_models(base_url="http://127.0.0.1:11434"):
         """获取 Ollama 模型列表"""
         try:
-            ports = [11434, 11435]
+            ports = [11434, 8080]
             for port in ports:
                 try:
                     url = f"http://127.0.0.1:{port}/api/tags"
@@ -152,7 +152,7 @@ class RemoteTextModelSelector:
                 "base_url": ("STRING", {
                     "default": "http://127.0.0.1:11434",
                     "multiline": False,
-                    "tooltip": "API 服务地址"
+                    "tooltip": "API 服务地址（Ollama: 11434, Nexa: 8080）"
                 }),
                 "api_type": (["Ollama", "Nexa SDK", "OpenAI Compatible"], {
                     "default": "Ollama",
