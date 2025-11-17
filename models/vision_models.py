@@ -17,6 +17,9 @@ class VisionModelConfig:
     n_gpu_layers: int = -1
     verbose: bool = False
     
+    # 新增：自动清理参数
+    auto_cleanup: bool = True
+    
     # 推理参数
     max_tokens: int = 512
     temperature: float = 0.7
@@ -36,6 +39,7 @@ class VisionModelConfig:
             'n_ctx': self.n_ctx,
             'n_gpu_layers': self.n_gpu_layers,
             'verbose': self.verbose,
+            'auto_cleanup': self.auto_cleanup,
             'max_tokens': self.max_tokens,
             'temperature': self.temperature,
             'top_p': self.top_p,
@@ -82,7 +86,8 @@ class VisionModelPresets:
             'n_gpu_layers': -1,
             'max_tokens': 512,
             'temperature': 0.7,
-            'business_type': 'image_analysis'
+            'business_type': 'image_analysis',
+            'auto_cleanup': True
         }
     
     @staticmethod
@@ -93,7 +98,8 @@ class VisionModelPresets:
             'n_gpu_layers': -1,
             'max_tokens': 512,
             'temperature': 0.7,
-            'business_type': 'image_analysis'
+            'business_type': 'image_analysis',
+            'auto_cleanup': True
         }
     
     @staticmethod
@@ -104,7 +110,20 @@ class VisionModelPresets:
             'n_gpu_layers': -1,
             'max_tokens': 1024,
             'temperature': 0.7,
-            'business_type': 'image_analysis'
+            'business_type': 'image_analysis',
+            'auto_cleanup': True
+        }
+    
+    @staticmethod
+    def get_qwen3_vl_4b() -> Dict:
+        """Qwen3-VL-4B 预设"""
+        return {
+            'n_ctx': 8192,
+            'n_gpu_layers': -1,
+            'max_tokens': 1024,
+            'temperature': 0.7,
+            'business_type': 'image_analysis',
+            'auto_cleanup': True
         }
     
     @staticmethod
@@ -122,6 +141,7 @@ class VisionModelPresets:
             'qwen2.5-vl-3b': VisionModelPresets.get_qwen25_vl_3b(),
             'qwen2.5-vl-7b': VisionModelPresets.get_qwen25_vl_7b(),
             'qwen3-vl-8b': VisionModelPresets.get_qwen3_vl_8b(),
+            'qwen3-vl-4b': VisionModelPresets.get_qwen3_vl_4b(),
         }
         
         model_name_lower = model_name.lower()
